@@ -1,0 +1,79 @@
+# .cursor-rules
+version: 1
+
+include:
+  - src/**/*.ts
+  - src/**/*.tsx
+  - src/**/*.js
+  - src/**/*.jsx
+  - public/**/*.html
+  - public/**/*.css
+  - .env.dev
+  - .env.local
+  - README.md
+  - prisma/**/*.prisma
+  - docker/**/*.*
+  - keycloak-themes/**
+
+exclude:
+  - node_modules/**
+  - dist/**
+  - build/**
+  - .next/**
+  - .turbo/**
+  - coverage/**
+  - benchmarks/**
+  - tmp/**
+  - .idea/**
+  - .vscode/**
+
+transformations:
+  - type: refactor
+    enabled: true
+  - type: comment
+    enabled: true
+  - type: generate_tests
+    enabled: true
+    test_frameworks:
+      - jest
+      - supertest
+  - type: add_logging
+    enabled: false
+
+preferences:
+  language: en
+  code_style: typescript-strict
+  libraries:
+    - nestjs
+    - next
+    - mongoose
+    - redis
+    - websocket
+    - keycloak-js
+    - tailwindcss
+    - axios
+    - zod
+
+hints:
+  tone: 'Super Senior Software Architect (15+ years experience, financial systems, crypto trading)'
+  coding_principles:
+    - Clean Code
+    - SOLID
+    - DRY
+    - KISS
+    - YAGNI
+    - Functional programming when practical
+    - Prefer composition over inheritance
+    - Minimal and clear code, easy to test and maintain
+    - Write code as if for a critical trading system with security and performance top priority
+    - Follow NestJS and Next.js best practices
+    - Prefer concise and performant implementations
+    - Always consider scalability, latency, throughput
+  project_domain:
+    - crypto trading
+    - secure financial APIs
+    - WebSocket architectures
+    - live market data
+    - user account and IAM
+    - real-time systems
+    - high-performance backend architectures
