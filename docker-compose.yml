@@ -1,0 +1,12 @@
+services:
+  app:
+    env_file:
+      - ./.env.${NODE_ENV}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: youcoinapp-backend
+    ports:
+      - '8001:3000'
+    volumes:
+      - .:/app
