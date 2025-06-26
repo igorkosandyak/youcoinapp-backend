@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "i:deps": "npm install @nestjs/common @nestjs/core @nestjs/config @nestjs/axios @nestjs/platform-express @nestjs/mongoose mongoose @nestjs/schedule @nestjs/bullmq bullmq ioredis @nestjs/throttler @nestjs/event-emitter @nestjs/passport passport passport-jwt @nestjs/jwt dotenv rxjs class-validator class-transformer joi @ssut/nestjs-sqs @aws-sdk/client-sns @aws-sdk/client-sqs @aws-sdk/client-s3 aws-sdk",
+    "i:deps": "npm install @nestjs/common @nestjs/core @nestjs/config @nestjs/axios @nestjs/platform-express @nestjs/mongoose mongoose @nestjs/schedule @nestjs/bullmq bullmq ioredis @nestjs/throttler @nestjs/event-emitter @nestjs/passport passport passport-jwt @nestjs/jwt dotenv rxjs class-validator class-transformer joi @ssut/nestjs-sqs @aws-sdk/client-sns @aws-sdk/client-sqs @aws-sdk/client-s3 aws-sdk ccxt technicalindicators",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -39,6 +39,7 @@
     "@ssut/nestjs-sqs": "^3.0.1",
     "aws-sdk": "^2.1692.0",
     "bullmq": "^5.56.0",
+    "ccxt": "^4.4.91",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "dotenv": "^16.5.0",
@@ -50,7 +51,8 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "technicalindicators": "^3.1.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

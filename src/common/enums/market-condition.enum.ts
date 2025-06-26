@@ -1,0 +1,7 @@
+export enum MarketCondition {
+  SUPER_BEARISH = 'SUPER_BEARISH',
+  BEARISH = 'BEARISH',
+  SIDEWAYS = 'SIDEWAYS',
+  BULLISH = 'BULLISH',
+  SUPER_BULLISH = 'SUPER_BULLISH',
+}

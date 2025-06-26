@@ -1,0 +1,27 @@
+export const USDT_TRADE_ASSETS = [
+  'BTC',
+  'ETH',
+  'BCH',
+  'ETC',
+  'SOL',
+  'TON',
+  '1000SHIB',
+  '1000BONK',
+  'NEAR',
+  'DOT',
+  'ADA',
+  'XRP',
+  'LINK',
+  'SUI',
+  'ARB',
+  'DOGE',
+  'WIF',
+  'FLOKI',
+  'AVAX',
+  'RENDER',
+  'BNB',
+  'DASH',
+  'OP',
+];
+
+export const FUTURES_BASE_ASSET = 'USDT';

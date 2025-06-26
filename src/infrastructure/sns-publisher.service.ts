@@ -25,6 +25,9 @@ export class SnsPublisherService {
       [SNS_TOPICS.TRADE_SIGNALS]: config.get<string>(
         'AWS_SNS_TRADE_SIGNALS_TOPIC',
       ),
+      [SNS_TOPICS.MARKET_LOG_COLLECTION]: config.get<string>(
+        'AWS_SNS_MARKET_LOG_COLLECTION_TOPIC',
+      ),
       // Add more topic mappings as needed
       // [SNS_TOPICS.MARKET_ALERT]: config.get<string>('AWS_SNS_MARKET_ALERTS_TOPIC'),
       // [SNS_TOPICS.USER_NOTIFICATION]: config.get<string>('AWS_SNS_USER_NOTIFICATIONS_TOPIC'),
