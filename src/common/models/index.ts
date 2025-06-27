@@ -9,6 +9,8 @@ export * from './dtos/candlestick.dto';
 export * from './dtos/market-log.dto';
 export * from './dtos/trade-signal.dto';
 export * from './dtos/trade-signal-job-data.dto';
+export * from './dtos/market-log-collection-job-data.dto';
+export * from './dtos/profitable-market-logs-analysis-job-data.dto';
 
 // Indicator DTOs
 export * from './dtos/indicators/bollinger-bands.dto';

@@ -53,9 +53,6 @@ export class CacheConfigService {
       ),
     };
 
-    this.logger.log('📋 Redis configuration loaded:');
-    this.logger.log(`   Host: ${config.host}:${config.port}`);
-    this.logger.log(`   Key Prefix: ${config.keyPrefix}`);
     return config;
   }
 

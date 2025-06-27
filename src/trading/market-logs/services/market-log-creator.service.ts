@@ -9,4 +9,20 @@ export class MarketLogCreatorService {
   async insert(logs: Partial<MarketLog>[]): Promise<any[]> {
     return this.marketLogRepository.saveMany(logs);
   }
+
+  async updateLogProfitability(
+    logId: string,
+    isProfitable: boolean,
+    maxPriceChange: number,
+    checkedAt: Date,
+    timeToReach?: string,
+  ) {
+    return this.marketLogRepository.updateLogProfitability(
+      logId,
+      isProfitable,
+      maxPriceChange,
+      checkedAt,
+      timeToReach,
+    );
+  }
 }

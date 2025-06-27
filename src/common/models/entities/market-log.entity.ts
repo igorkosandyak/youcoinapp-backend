@@ -20,6 +20,45 @@ export class MarketLog extends Document {
   @Prop({ type: Number, required: true, default: 0.0 })
   currentPrice: number;
 
+  @Prop({ type: Number, required: false, default: 0.0 })
+  obi: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_3min: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_6min: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_9min: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_15min: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_30min: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_45min: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_1h: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_2h: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_3h: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_4h: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_8h: number;
+
+  @Prop({ type: Number, required: false, default: 0.0 })
+  change_12h: number;
+
   @Prop({ type: String, enum: TrendDirection, required: true })
   _5minTrend: TrendDirection;
 
@@ -323,6 +362,9 @@ export class MarketLog extends Document {
   @Prop({ type: Date, required: false, default: null })
   profitabilityCheckedAt: Date;
 
+  @Prop({ type: String, required: false, default: null })
+  timeToReach: string;
+
   @Prop({ type: Number, required: true, default: 0 })
   pricePrecision: number;
 
@@ -334,6 +376,9 @@ export class MarketLog extends Document {
 
   @Prop({ type: Boolean, required: false, default: false })
   isRanging: boolean;
+
+  @Prop({ type: [Number], required: false, index: true })
+  vectorData: number[];
 
   is15MinSentimentBullish(): boolean {
     return (

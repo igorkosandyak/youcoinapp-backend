@@ -213,6 +213,45 @@ export class MarketLogDto {
   amountPrecision: number;
 
   @IsOptional()
+  obi?: number;
+
+  @IsOptional()
+  change_3min?: number;
+
+  @IsOptional()
+  change_6min?: number;
+
+  @IsOptional()
+  change_9min?: number;
+
+  @IsOptional()
+  change_15min?: number;
+
+  @IsOptional()
+  change_30min?: number;
+
+  @IsOptional()
+  change_45min?: number;
+
+  @IsOptional()
+  change_1h?: number;
+
+  @IsOptional()
+  change_2h?: number;
+
+  @IsOptional()
+  change_3h?: number;
+
+  @IsOptional()
+  change_4h?: number;
+
+  @IsOptional()
+  change_8h?: number;
+
+  @IsOptional()
+  change_12h?: number;
+
+  @IsOptional()
   createdAt?: Date;
 
   constructor(
@@ -222,6 +261,19 @@ export class MarketLogDto {
     currentPrice: number,
     pricePrecision: number,
     amountPrecision: number,
+    obi?: number,
+    change_3min?: number,
+    change_6min?: number,
+    change_9min?: number,
+    change_15min?: number,
+    change_30min?: number,
+    change_45min?: number,
+    change_1h?: number,
+    change_2h?: number,
+    change_3h?: number,
+    change_4h?: number,
+    change_8h?: number,
+    change_12h?: number,
   ) {
     this.market = market;
     this.from = from;
@@ -229,6 +281,19 @@ export class MarketLogDto {
     this.currentPrice = currentPrice;
     this.pricePrecision = pricePrecision;
     this.amountPrecision = amountPrecision;
+    this.obi = obi;
+    this.change_3min = change_3min;
+    this.change_6min = change_6min;
+    this.change_9min = change_9min;
+    this.change_15min = change_15min;
+    this.change_30min = change_30min;
+    this.change_45min = change_45min;
+    this.change_1h = change_1h;
+    this.change_2h = change_2h;
+    this.change_3h = change_3h;
+    this.change_4h = change_4h;
+    this.change_8h = change_8h;
+    this.change_12h = change_12h;
   }
 
   toDbMarketLog(): Partial<MarketLog> {
@@ -239,6 +304,19 @@ export class MarketLogDto {
       currentPrice: this.currentPrice || 0,
       pricePrecision: this.pricePrecision,
       amountPrecision: this.amountPrecision,
+      obi: this.obi || 0,
+      change_3min: this.change_3min || 0,
+      change_6min: this.change_6min || 0,
+      change_9min: this.change_9min || 0,
+      change_15min: this.change_15min || 0,
+      change_30min: this.change_30min || 0,
+      change_45min: this.change_45min || 0,
+      change_1h: this.change_1h || 0,
+      change_2h: this.change_2h || 0,
+      change_3h: this.change_3h || 0,
+      change_4h: this.change_4h || 0,
+      change_8h: this.change_8h || 0,
+      change_12h: this.change_12h || 0,
       _5minTrend: this._5minTimeframe?.trend || null,
       _5minSentiment: this._5minTimeframe?.sentiment || null,
       _5minPressure: this._5minTimeframe?.pressure || null,

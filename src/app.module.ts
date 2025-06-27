@@ -13,6 +13,7 @@ import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { TradingModule } from './trading/trading.module';
 import { JOB_OPTIONS } from './common/constants';
 import { AccountsModule } from './accounts/accounts.module';
+import { LearningModule } from './learning/learning.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AccountsModule } from './accounts/accounts.module';
     InfrastructureModule,
     TradingModule,
     AccountsModule,
+    LearningModule,
   ],
   controllers: [],
   providers: [],

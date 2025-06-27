@@ -31,7 +31,10 @@ export class CalcUtils {
     }
   }
 
-  calcPercentDiffBetweenPrices(entryPrice: number, currentPrice: number): number {
+  calcPercentDiffBetweenPrices(
+    entryPrice: number,
+    currentPrice: number,
+  ): number {
     if (entryPrice === 0) {
       return 0;
     }
@@ -98,12 +101,18 @@ export class CalcUtils {
     return this.getPriceFromOrderBook(orderBook.asks, index);
   }
 
-  getNumberWithPercentSubtraction(amount: number, percentSubtraction: number): number {
+  getNumberWithPercentSubtraction(
+    amount: number,
+    percentSubtraction: number,
+  ): number {
     const subtraction = (amount * percentSubtraction) / 100;
     return amount - subtraction;
   }
 
-  private getPriceFromOrderBook(prices: number[], index: number): number | null {
+  private getPriceFromOrderBook(
+    prices: number[],
+    index: number,
+  ): number | null {
     if (index < 1 || index > prices.length) {
       return null;
     }

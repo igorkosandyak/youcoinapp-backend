@@ -21,6 +21,12 @@ import { SQS_QUEUES } from 'src/common/constants/messaging.constants';
             region: config.get('AWS_REGION'),
             suppressFifoWarning: true,
           },
+          {
+            name: SQS_QUEUES.PROFITABLE_MARKET_LOGS_ANALYSIS,
+            queueUrl: config.get('AWS_SQS_MARKET_LOG_ANALYSIS_URL'),
+            region: config.get('AWS_REGION'),
+            suppressFifoWarning: true,
+          },
         ],
         producers: [],
       }),

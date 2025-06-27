@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { InfrastructureModule } from 'src/infrastructure/infrastructure.module';
 import { TradingSignalConsumerService } from './signal-processors/trade-signal.consumer';
@@ -17,11 +17,14 @@ import { MarketLogCollectionConsumerService } from './market-log-processors/mark
 import { MarketLogCollectionProcessor } from './market-log-processors/market-log-collection.processor';
 import { IndicatorsService } from './market-logs/services/indicators.service';
 import { TimeUtils } from 'src/common/utils/time-utils.service';
-import { CalcUtils } from 'src/common/utils/calc-utils.service';
 import { MarketLogRepository } from './market-logs/repositories/market-log.repository';
 import { MarketLogCreatorService } from './market-logs/services/market-log-creator.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MarketLogRateLimiterService } from './market-logs/services/market-log-rate-limiter.service';
+import { MarketLogStatusService } from './market-logs/services/market-log-status.service';
+import { MarketLogStatusController } from './controllers/market-log-status.controller';
+import { LearningModule } from 'src/learning/learning.module';
 
 @Module({
   imports: [
@@ -41,7 +44,9 @@ import { ScheduleModule } from '@nestjs/schedule';
       name: JOBS.MARKET_LOG_COLLECTION_PROCESSOR,
       ...QUEUE_CONFIGS[JOBS.MARKET_LOG_COLLECTION_PROCESSOR],
     }),
+    forwardRef(() => LearningModule),
   ],
+  controllers: [MarketLogStatusController],
   providers: [
     TradingSignalConsumerService,
     TradeSignalProcessor,
@@ -50,10 +55,18 @@ import { ScheduleModule } from '@nestjs/schedule';
     MarketLogCollectionConsumerService,
     MarketLogCollectionProcessor,
     IndicatorsService,
-    CalcUtils,
     TimeUtils,
     MarketLogRepository,
     MarketLogCreatorService,
+    MarketLogRateLimiterService,
+    MarketLogStatusService,
+  ],
+  exports: [
+    MarketLogFetcherService,
+    MarketLogCreatorService,
+    TimeUtils,
+    MarketLogRepository,
+    IndicatorsService,
   ],
 })
 export class TradingModule {}

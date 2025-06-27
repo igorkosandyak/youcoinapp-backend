@@ -186,6 +186,26 @@ export class IndicatorsService {
     return cci;
   }
 
+  getOBI(orderbook: any, depth = 10): number {
+    const bids = orderbook.bids.slice(0, depth);
+    const asks = orderbook.asks.slice(0, depth);
+
+    const bidVolume = bids.reduce(
+      (sum, [, volume]) => sum + parseFloat(volume),
+      0,
+    );
+    const askVolume = asks.reduce(
+      (sum, [, volume]) => sum + parseFloat(volume),
+      0,
+    );
+
+    const total = bidVolume + askVolume;
+    if (total === 0) return 0;
+
+    const imbalance = (bidVolume - askVolume) / total;
+    return imbalance;
+  }
+
   private _get9EMA(candlesticks: Candlestick[]): number {
     const closePrices = candlesticks.slice(-9).map((candle) => candle.close);
     const emaValues = technicalindicators.EMA.calculate({
