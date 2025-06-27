@@ -7,6 +7,6 @@ services:
       dockerfile: Dockerfile
     container_name: youcoinapp-backend
     ports:
-      - '8001:3000'
+      - '9000:3000'
     volumes:
       - .:/app
