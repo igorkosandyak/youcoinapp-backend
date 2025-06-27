@@ -1,11 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { MarketLog } from 'src/common/models';
 
 @Injectable()
 export class VectorEncoderService {
+  private readonly logger = new Logger(VectorEncoderService.name);
+
   constructor() {}
 
   encode(log: Partial<MarketLog>): number[] {
+    this.logger.debug(
+      `Encoding log for ${log.from}: currentPrice=${log.currentPrice}, change_1h=${log.change_1h}`,
+    );
+
     const safe = (value?: number): number =>
       typeof value === 'number' ? value : 0;
 
@@ -75,20 +81,27 @@ export class VectorEncoderService {
     ];
 
     // Price change context - includes all time-based price changes
-    const priceChangeContext = (): number[] => [
-      safe(log.change_3min),
-      safe(log.change_6min),
-      safe(log.change_9min),
-      safe(log.change_15min),
-      safe(log.change_30min),
-      safe(log.change_45min),
-      safe(log.change_1h),
-      safe(log.change_2h),
-      safe(log.change_3h),
-      safe(log.change_4h),
-      safe(log.change_8h),
-      safe(log.change_12h),
-    ];
+    const priceChangeContext = (): number[] => {
+      const priceChanges = [
+        safe(log.change_3min),
+        safe(log.change_6min),
+        safe(log.change_9min),
+        safe(log.change_15min),
+        safe(log.change_30min),
+        safe(log.change_45min),
+        safe(log.change_1h),
+        safe(log.change_2h),
+        safe(log.change_3h),
+        safe(log.change_4h),
+        safe(log.change_8h),
+        safe(log.change_12h),
+      ];
+
+      this.logger.debug(
+        `Price changes for ${log.from}: ${priceChanges.join(', ')}`,
+      );
+      return priceChanges;
+    };
 
     // Order book imbalance context
     const orderBookContext = (): number[] => [safe(log.obi)];

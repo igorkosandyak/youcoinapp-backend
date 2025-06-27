@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { LabelingService } from './labeling.service';
-import { MarketLog } from 'src/common/models/entities/market-log.entity';
+// import { MarketLog } from 'src/common/models/entities/market-log.entity';
 
 @Injectable()
 export class EngineService implements OnModuleInit {

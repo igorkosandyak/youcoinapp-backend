@@ -4,6 +4,7 @@ import { Job } from 'bullmq';
 import { JOBS } from 'src/common/constants/jobs.constants';
 import { ProfitableMarketLogsAnalysisJobDataDto } from 'src/common/models/dtos/profitable-market-logs-analysis-job-data.dto';
 import { LabelingService } from './services/labeling.service';
+import { ProfitableMarketLogCreatorService } from 'src/trading/market-logs/services/profitable-market-log-creator.service';
 
 @Processor(JOBS.PROFITABLE_MARKET_LOGS_ANALYSIS_PROCESSOR, { concurrency: 5 })
 export class ProfitableMarketLogsAnalysisProcessor
@@ -14,7 +15,10 @@ export class ProfitableMarketLogsAnalysisProcessor
     ProfitableMarketLogsAnalysisProcessor.name,
   );
 
-  constructor(private readonly labelingService: LabelingService) {
+  constructor(
+    private readonly labelingService: LabelingService,
+    private readonly profitableMarketLogCreatorService: ProfitableMarketLogCreatorService,
+  ) {
     super();
   }
 
@@ -53,6 +57,24 @@ export class ProfitableMarketLogsAnalysisProcessor
           bestProfitableLogs =
             await this.labelingService.analyzeMarketLogsProfitability();
         }
+      }
+
+      await job.updateProgress(60);
+
+      // Save profitable market logs to the new collection
+      if (bestProfitableLogs && bestProfitableLogs.length > 0) {
+        this.logger.log(
+          `💾 [${job.id}] Saving ${bestProfitableLogs.length} profitable market logs to collection`,
+        );
+
+        await this.profitableMarketLogCreatorService.saveProfitableMarketLogs(
+          bestProfitableLogs,
+          analysisType,
+        );
+
+        this.logger.log(
+          `✅ [${job.id}] Successfully saved profitable market logs to collection`,
+        );
       }
 
       await job.updateProgress(80);

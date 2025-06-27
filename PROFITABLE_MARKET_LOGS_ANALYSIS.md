@@ -1,208 +1,254 @@
-# Profitable Market Logs Analysis
+# Profitable Market Logs Analysis System
 
-This document describes the implementation of profitable market logs analysis using Bull MQ with SNS and SQS, following the same pattern as market logs collection and trading signals processing.
+This document describes the profitable market logs analysis system that identifies and stores profitable trading opportunities from market logs.
 
 ## Overview
 
-The profitable market logs analysis system automatically analyzes market logs to identify profitable trading opportunities and collects the best profitable logs per asset for machine learning training and analysis.
+The system analyzes market logs from the last 24 hours to identify profitable trading opportunities. It uses the `LabelingService` to calculate maximum price changes and determine profitability based on configurable thresholds. Profitable market logs are then saved to a dedicated `profitable-market-logs` collection for easy querying and analysis.
 
 ## Architecture
 
 ### Components
 
-1. **Scheduler Service** (`ProfitableMarketLogsAnalysisSchedulerService`)
-   - Triggers daily analysis automatically every 24 hours
-   - Provides on-demand analysis triggering capabilities
+1. **ProfitableMarketLogsAnalysisConsumer** - Handles SQS messages and queues Bull MQ jobs
+2. **ProfitableMarketLogsAnalysisProcessor** - Processes jobs and performs analysis using `LabelingService`
+3. **ProfitableMarketLogsAnalysisScheduler** - Triggers daily and on-demand analysis via SNS
+4. **ProfitableMarketLogsAnalysisController** - HTTP endpoints for manual triggering
+5. **ProfitableMarketLogCreatorService** - Saves profitable market logs to dedicated collection
+6. **ProfitableMarketLogRepository** - Database operations for profitable market logs
 
-2. **Consumer Service** (`ProfitableMarketLogsAnalysisConsumerService`)
-   - Listens to SQS messages from the profitable market logs analysis queue
-   - Converts SNS/SQS messages to Bull MQ jobs
-
-3. **Processor Service** (`ProfitableMarketLogsAnalysisProcessor`)
-   - Executes the actual profitability analysis
-   - Uses the existing `LabelingService` to analyze market logs
-   - Processes jobs with concurrency of 5
-
-4. **Controller** (`ProfitableMarketLogsAnalysisController`)
-   - Provides HTTP endpoints for manual triggering
-   - Supports both daily and custom date range analysis
-
-### Message Flow
+### Data Flow
 
 ```
-Scheduler → SNS → SQS → Consumer → Bull MQ → Processor → LabelingService
+SNS Topic → SQS Queue → Consumer → Bull MQ Queue → Processor → LabelingService → ProfitableMarketLogCreatorService → MongoDB Collection
 ```
 
 ## Configuration
 
 ### Environment Variables
 
-Add these to your `.env` file:
+```bash
+# SNS Topic for triggering analysis
+AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC=arn:aws:sns:region:account:market-log-analysis-topic
 
-```env
-# SNS Topics
-AWS_SNS_PROFITABLE_MARKET_LOGS_ANALYSIS_TOPIC=arn:aws:sns:us-east-1:ACCOUNT_ID:profitable-market-logs-analysis
+# SQS Queue for receiving messages
+AWS_SQS_MARKET_LOG_ANALYSIS_URL=https://sqs.region.amazonaws.com/account/market-log-analysis-queue
 
-# SQS Queues
-AWS_SQS_PROFITABLE_MARKET_LOGS_ANALYSIS_URL=https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/profitable-market-logs-analysis-queue
+# Redis for Bull MQ
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your_redis_password
 ```
 
-### AWS Resources Required
+### Analysis Configuration
 
-1. **SNS Topic**: `profitable-market-logs-analysis`
-2. **SQS Queue**: `profitable-market-logs-analysis-queue`
-3. **SQS Dead Letter Queue**: `profitable-market-logs-analysis-dlq` (optional)
+The analysis uses the following configuration in `LabelingService`:
+
+- **MAX_HOURS_TO_CHECK**: 24 hours (time window for analysis)
+- **PROFIT_THRESHOLD_PERCENT**: 2.0% (minimum profit threshold)
+- **BATCH_SIZE**: 400 (batch size for processing logs)
+
+## Database Schema
+
+### ProfitableMarketLog Entity
+
+The `profitable-market-logs` collection contains all the same fields as the original `market-logs` collection, plus additional profitability-specific fields:
+
+```typescript
+interface ProfitableMarketLog {
+  // All original MarketLog fields...
+
+  // Profitability-specific fields
+  wasProfitable: boolean;
+  maxPriceChangePercent: number;
+  profitabilityCheckedAt: Date;
+  timeToReach: string;
+
+  // Analysis metadata
+  analysisDate: Date;
+  analysisType: string; // 'daily' or 'on-demand'
+  originalMarketLogId: string; // Reference to original market log
+
+  // Vector data for ML analysis
+  vectorData: number[];
+}
+```
 
 ## Usage
 
 ### Automatic Daily Analysis
 
-The system automatically runs profitability analysis every 24 hours. No manual intervention required.
+The system automatically runs daily analysis at 00:00 UTC via the scheduler:
 
-### Manual Triggering
-
-#### Trigger Daily Analysis
-
-```bash
-curl -X POST http://localhost:3000/learning/profitable-market-logs-analysis/trigger/daily
+```typescript
+// Triggered automatically by ProfitableMarketLogsAnalysisScheduler
+await this.snsPublisherService.publish(
+  MESSAGING.PROFITABLE_MARKET_LOGS_ANALYSIS,
+  {
+    analysisType: 'daily',
+  },
+);
 ```
 
-#### Trigger Custom Analysis
+### Manual On-Demand Analysis
+
+Trigger analysis manually via HTTP endpoint:
 
 ```bash
-curl -X POST http://localhost:3000/learning/profitable-market-logs-analysis/trigger \
+# Daily analysis (last 24 hours)
+curl -X POST http://localhost:3000/learning/profitable-market-logs-analysis/daily
+
+# Custom date range analysis
+curl -X POST http://localhost:3000/learning/profitable-market-logs-analysis/on-demand \
   -H "Content-Type: application/json" \
   -d '{
-    "startDate": "2024-01-01T00:00:00Z",
-    "endDate": "2024-01-02T00:00:00Z"
+    "startDate": "2024-01-01T00:00:00.000Z",
+    "endDate": "2024-01-02T00:00:00.000Z"
   }'
 ```
 
-### API Endpoints
+### Querying Profitable Market Logs
 
-- `POST /learning/profitable-market-logs-analysis/trigger/daily` - Trigger daily analysis
-- `POST /learning/profitable-market-logs-analysis/trigger` - Trigger custom analysis
+The system provides HTTP endpoints to query the profitable market logs collection:
 
-## Analysis Process
+```bash
+# Get statistics
+curl http://localhost:3000/trading/profitable-market-logs/stats
 
-1. **Data Collection**: Fetches unchecked market logs from the last 24 hours
-2. **Profitability Calculation**: For each log, calculates the maximum price change within a 24-hour window
-3. **Threshold Filtering**: Identifies logs that meet the profit threshold (default: 2.0%)
-4. **Asset Grouping**: Groups profitable logs by asset
-5. **Best Selection**: Selects the log with the highest price change per asset
-6. **Database Update**: Updates the original logs with profitability data
-7. **Result Logging**: Logs the top profitable opportunities
+# Get top profitable logs
+curl http://localhost:3000/trading/profitable-market-logs/top?limit=20
 
-## Configuration Options
+# Get profitable logs by asset
+curl http://localhost:3000/trading/profitable-market-logs/asset/BTCUSDT
 
-### Analysis Parameters
+# Get profitable logs by date range
+curl "http://localhost:3000/trading/profitable-market-logs/date-range?startDate=2024-01-01T00:00:00.000Z&endDate=2024-01-02T00:00:00.000Z"
 
-The analysis can be configured in the `LabelingService`:
-
-```typescript
-private readonly analysisConfig: AnalysisConfig = {
-  MAX_HOURS_TO_CHECK: 24,        // Time window for analysis
-  PROFIT_THRESHOLD_PERCENT: 2.0, // Minimum profit percentage
-  BATCH_SIZE: 400,               // Batch size for processing
-};
+# Clean up old logs (older than 30 days)
+curl http://localhost:3000/trading/profitable-market-logs/cleanup?olderThanDays=30
 ```
 
-### Queue Configuration
+## API Endpoints
 
-```typescript
-[JOBS.PROFITABLE_MARKET_LOGS_ANALYSIS_PROCESSOR]: {
-  defaultJobOptions: JOB_OPTIONS,
-  concurrency: 5, // Process 5 jobs in parallel
-}
+### Learning Module Endpoints
+
+- `POST /learning/profitable-market-logs-analysis/daily` - Trigger daily analysis
+- `POST /learning/profitable-market-logs-analysis/on-demand` - Trigger custom analysis
+
+### Trading Module Endpoints
+
+- `GET /trading/profitable-market-logs/stats` - Get collection statistics
+- `GET /trading/profitable-market-logs/top?limit=10` - Get top profitable logs
+- `GET /trading/profitable-market-logs/asset/:asset` - Get logs by asset
+- `GET /trading/profitable-market-logs/date-range` - Get logs by date range
+- `GET /trading/profitable-market-logs/cleanup` - Clean up old logs
+
+## Monitoring and Logging
+
+### Job Monitoring
+
+Monitor Bull MQ jobs via Redis:
+
+```bash
+# Check job status
+redis-cli HGETALL bull:profitable-market-logs-analysis:jobs
+
+# Check queue status
+redis-cli LLEN bull:profitable-market-logs-analysis:wait
 ```
 
-## Monitoring
+### Log Analysis
 
-### Logs
+The system logs detailed information about:
 
-The system provides comprehensive logging:
+- Analysis start/completion
+- Number of profitable logs found
+- Top profitable opportunities
+- Database operations
+- Error conditions
 
-- Scheduler triggers and status
-- SQS message processing
-- Bull MQ job progress
-- Analysis results and statistics
-- Error handling and retries
+Example logs:
 
-### Job Progress
-
-Jobs report progress at key milestones:
-
-- 10%: Job started
-- 80%: Analysis completed
-- 100%: Job finished
-
-### Error Handling
-
-- Automatic retries with exponential backoff
-- Dead letter queue for failed messages
-- Comprehensive error logging
-- Graceful degradation
-
-## Integration with Existing Systems
-
-### LabelingService Integration
-
-The processor uses the existing `LabelingService` which provides:
-
-- `analyzeMarketLogsProfitability()` - Main analysis method
-- `getBestProfitableLogsPerAsset()` - Retrieves best logs
-- `analyzeAndGetBestProfitableLogs()` - Combined analysis and retrieval
-
-### Database Integration
-
-The analysis updates the `MarketLog` collection with:
-
-- `wasProfitable`: Boolean flag
-- `maxPriceChangePercent`: Maximum price change percentage
-- `profitabilityCheckedAt`: Timestamp of analysis
-- `timeToReach`: Time to reach maximum profit
+```
+[ProfitableMarketLogsAnalysisProcessor] 🔄 [job-123] Starting profitable market logs analysis: daily
+[LabelingService] Analyzing market logs profitability for the last 24 hours
+[ProfitableMarketLogsAnalysisProcessor] 💾 [job-123] Saving 15 profitable market logs to collection
+[ProfitableMarketLogsAnalysisProcessor] ✅ [job-123] Successfully saved profitable market logs to collection
+[ProfitableMarketLogsAnalysisProcessor] 🏆 Top profitable opportunities:
+[ProfitableMarketLogsAnalysisProcessor] 1. BTCUSDT: 5.23% (reached in 2 hours) at 2024-01-01T10:00:00.000Z
+```
 
 ## Performance Considerations
 
-- **Batch Processing**: Processes logs in batches of 400
-- **Concurrent Processing**: 5 concurrent jobs
-- **Rate Limiting**: Built-in delays between database operations
-- **Memory Management**: Processes logs in chunks to avoid memory issues
+### Batch Processing
 
-## Security
+- Market logs are processed in batches of 400 to optimize memory usage
+- Database operations use bulk insert for better performance
+- Vector encoding is performed during save operations
 
-- All AWS credentials are managed through environment variables
-- SNS/SQS use IAM roles and policies
-- No sensitive data is logged
-- Input validation on API endpoints
+### Data Retention
+
+- Old profitable market logs can be cleaned up via the cleanup endpoint
+- Default retention period is 30 days
+- Vector data is indexed for efficient similarity searches
+
+### Scalability
+
+- Bull MQ provides job queuing and retry mechanisms
+- SNS/SQS decouples triggering from processing
+- Multiple processor instances can run concurrently
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **SQS Message Not Received**
-   - Check SQS queue URL configuration
-   - Verify SNS topic subscription
+1. **SNS Topic Not Found**
+   - Verify `AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC` environment variable
    - Check AWS credentials and permissions
 
-2. **Analysis Not Completing**
-   - Check database connectivity
-   - Verify market log data availability
-   - Review error logs for specific issues
+2. **SQS Queue Not Found**
+   - Verify `AWS_SQS_MARKET_LOG_ANALYSIS_URL` environment variable
+   - Check AWS credentials and permissions
 
-3. **High Memory Usage**
-   - Reduce batch size in configuration
-   - Check for memory leaks in processing
-   - Monitor concurrent job count
+3. **Redis Connection Issues**
+   - Verify Redis connection settings
+   - Check Redis server status
+
+4. **Database Connection Issues**
+   - Verify MongoDB connection string
+   - Check database permissions
 
 ### Debug Mode
 
-Enable debug logging by setting the log level to debug in your application configuration.
+Enable debug logging by setting log level to DEBUG:
+
+```typescript
+// In your logging configuration
+{
+  level: 'debug',
+  // ... other config
+}
+```
+
+### Health Checks
+
+Monitor system health via:
+
+```bash
+# Check Redis connection
+redis-cli ping
+
+# Check MongoDB connection
+mongo --eval "db.runCommand('ping')"
+
+# Check Bull MQ queues
+redis-cli KEYS "bull:*"
+```
 
 ## Future Enhancements
 
-1. **Custom Date Ranges**: Enhanced support for historical analysis
-2. **Real-time Analysis**: Near real-time profitability analysis
-3. **ML Integration**: Direct integration with machine learning models
-4. **Performance Metrics**: Detailed performance analytics
-5. **Alerting**: Notifications for high-profit opportunities
+1. **Real-time Analysis**: Trigger analysis on new market log creation
+2. **Advanced Filtering**: Add filters for specific market conditions
+3. **ML Integration**: Use vector similarity for pattern matching
+4. **Alerting**: Send notifications for high-profitability opportunities
+5. **Dashboard**: Web interface for viewing and analyzing profitable logs

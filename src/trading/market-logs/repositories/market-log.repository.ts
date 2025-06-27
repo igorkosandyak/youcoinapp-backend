@@ -42,6 +42,10 @@ export class MarketLogRepository {
   ): Promise<MarketLog[]> {
     return await this.marketLogModel
       .find({
+        $or: [
+          { profitabilityCheckedAt: { $exists: false } },
+          { profitabilityCheckedAt: null },
+        ],
         createdAt: { $gte: last24Hours },
       })
       .sort({ createdAt: 1 })
@@ -116,5 +120,38 @@ export class MarketLogRepository {
       })
       .sort({ maxPriceChangePercent: -1 })
       .exec();
+  }
+
+  async clearProfitabilityData(filter: any): Promise<{ updatedCount: number }> {
+    const result = await this.marketLogModel
+      .updateMany(filter, {
+        $unset: {
+          wasProfitable: '',
+          maxPriceChangePercent: '',
+          profitabilityCheckedAt: '',
+          timeToReach: '',
+        },
+      })
+      .exec();
+
+    return { updatedCount: result.modifiedCount };
+  }
+
+  async clearAllProfitabilityData(): Promise<{ updatedCount: number }> {
+    const result = await this.marketLogModel
+      .updateMany(
+        {},
+        {
+          $unset: {
+            wasProfitable: '',
+            maxPriceChangePercent: '',
+            profitabilityCheckedAt: '',
+            timeToReach: '',
+          },
+        },
+      )
+      .exec();
+
+    return { updatedCount: result.modifiedCount };
   }
 }

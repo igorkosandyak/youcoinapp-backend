@@ -98,7 +98,7 @@ export const validationSchema = Joi.object({
     .description('AWS SNS market log collection topic')
     .example('arn:aws:sns:us-east-1:ACCOUNT_ID:market-log-collection'),
 
-  AWS_SNS_PROFITABLE_MARKET_LOGS_ANALYSIS_TOPIC: Joi.string()
+  AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC: Joi.string()
     .default('arn:aws:sns:us-east-1:ACCOUNT_ID:profitable-market-logs-analysis')
     .description('AWS SNS profitable market logs analysis topic')
     .example(
@@ -126,7 +126,7 @@ export const validationSchema = Joi.object({
       'https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/market-log-collection-queue',
     ),
 
-  AWS_SQS_PROFITABLE_MARKET_LOGS_ANALYSIS_URL: Joi.string()
+  AWS_SQS_MARKET_LOG_ANALYSIS_URL: Joi.string()
     .uri()
     .description('AWS SQS profitable market logs analysis queue URL')
     .example(
