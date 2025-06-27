@@ -8,10 +8,6 @@ export class VectorEncoderService {
   constructor() {}
 
   encode(log: Partial<MarketLog>): number[] {
-    this.logger.debug(
-      `Encoding log for ${log.from}: currentPrice=${log.currentPrice}, change_1h=${log.change_1h}`,
-    );
-
     const safe = (value?: number): number =>
       typeof value === 'number' ? value : 0;
 
@@ -97,9 +93,6 @@ export class VectorEncoderService {
         safe(log.change_12h),
       ];
 
-      this.logger.debug(
-        `Price changes for ${log.from}: ${priceChanges.join(', ')}`,
-      );
       return priceChanges;
     };
 
