@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Interval } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { SnsPublisherService } from 'src/infrastructure/sns-publisher.service';
 import { SNS_TOPICS } from 'src/common/constants/messaging.constants';
 import { ProfitableMarketLogsAnalysisJobDataDto } from 'src/common/models/dtos/profitable-market-logs-analysis-job-data.dto';
@@ -16,10 +16,10 @@ export class ProfitableMarketLogsAnalysisSchedulerService
 
   async onModuleInit() {
     this.logger.log('Profitable Market Logs Analysis Scheduler initialized');
-    await this.triggerDailyAnalysis();
+    // await this.triggerDailyAnalysis();
   }
 
-  @Interval(24 * 60 * 60 * 1000) // Run every 24 hours
+  @Cron('0 3 * * *', { timeZone: 'UTC' }) // Run at 3 AM UTC daily
   async triggerDailyAnalysis(): Promise<void> {
     try {
       this.logger.log('🔄 Triggering daily profitable market logs analysis...');
