@@ -38,8 +38,6 @@ import { LearningModule } from './learning/learning.module';
         lazyConnect: true,
         keepAlive: 30000,
         family: 4,
-        connectTimeout: 10000,
-        commandTimeout: 5000,
       },
       defaultJobOptions: JOB_OPTIONS,
     }),
