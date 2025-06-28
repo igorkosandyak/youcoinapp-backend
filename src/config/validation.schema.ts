@@ -38,6 +38,12 @@ export const validationSchema = Joi.object({
     .description('Redis server port')
     .example(6379),
 
+  REDIS_PASSWORD: Joi.string()
+    .optional()
+    .allow('')
+    .description('Redis server password')
+    .example('your-redis-password'),
+
   REDIS_KEY_PREFIX: Joi.string()
     .default('test:')
     .description('Prefix for all cache keys')
@@ -59,6 +65,7 @@ export const validationSchema = Joi.object({
 
   BULL_REDIS_PASSWORD: Joi.string()
     .optional()
+    .allow('')
     .description('Bull MQ Redis password (for job queues)')
     .example('your-redis-password'),
 
