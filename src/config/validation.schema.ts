@@ -43,6 +43,33 @@ export const validationSchema = Joi.object({
     .description('Prefix for all cache keys')
     .example('test:'),
 
+  // Bull MQ Redis Configuration (separate from cache Redis)
+  BULL_REDIS_HOST: Joi.string()
+    .default('localhost')
+    .description('Bull MQ Redis server hostname (for job queues)')
+    .example('localhost'),
+
+  BULL_REDIS_PORT: Joi.number()
+    .integer()
+    .min(1)
+    .max(65535)
+    .default(6379)
+    .description('Bull MQ Redis server port (for job queues)')
+    .example(6379),
+
+  BULL_REDIS_PASSWORD: Joi.string()
+    .optional()
+    .description('Bull MQ Redis password (for job queues)')
+    .example('your-redis-password'),
+
+  BULL_REDIS_DB: Joi.number()
+    .integer()
+    .min(0)
+    .max(15)
+    .default(1)
+    .description('Bull MQ Redis database number (for job queues)')
+    .example(1),
+
   AWS_ACCESS_KEY_ID: Joi.string()
     .length(20)
     .description('AWS Access Key ID')

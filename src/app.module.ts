@@ -25,9 +25,21 @@ import { LearningModule } from './learning/learning.module';
     }),
     BullModule.forRoot({
       connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT) || 6379,
-        password: process.env.REDIS_PASSWORD,
+        host:
+          process.env.BULL_REDIS_HOST || process.env.REDIS_HOST || 'localhost',
+        port:
+          parseInt(process.env.BULL_REDIS_PORT) ||
+          parseInt(process.env.REDIS_PORT) ||
+          6379,
+        password: process.env.BULL_REDIS_PASSWORD || process.env.REDIS_PASSWORD,
+        db: parseInt(process.env.BULL_REDIS_DB) || 1, // Use different DB for Bull MQ
+        retryDelayOnFailover: 100,
+        maxRetriesPerRequest: 3,
+        lazyConnect: true,
+        keepAlive: 30000,
+        family: 4,
+        connectTimeout: 10000,
+        commandTimeout: 5000,
       },
       defaultJobOptions: JOB_OPTIONS,
     }),
