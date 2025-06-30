@@ -8,6 +8,7 @@ interface AnalysisConfig {
   readonly MAX_HOURS_TO_CHECK: number;
   readonly PROFIT_THRESHOLD_PERCENT: number;
   readonly BATCH_SIZE: number;
+  readonly ANALYSIS_DAYS_BACK: number;
 }
 
 @Injectable()
@@ -17,6 +18,7 @@ export class LabelingService {
     MAX_HOURS_TO_CHECK: 24,
     PROFIT_THRESHOLD_PERCENT: 2.0,
     BATCH_SIZE: 400,
+    ANALYSIS_DAYS_BACK: 10,
   };
 
   constructor(
@@ -27,10 +29,10 @@ export class LabelingService {
 
   async analyzeMarketLogsProfitability(): Promise<MarketLog[]> {
     this.logger.log(
-      'Analyzing market logs profitability for the last 24 hours',
+      `Analyzing market logs profitability for the last ${this.analysisConfig.ANALYSIS_DAYS_BACK} days`,
     );
 
-    const profitableLogs = await this.processLogsFromLast24Hours();
+    const profitableLogs = await this.processLogsFromLastDays();
     const bestLogsPerAsset = this.selectBestLogsPerAsset(profitableLogs);
     const sortedResult = this.sortLogsByProfitability(bestLogsPerAsset);
 
@@ -40,15 +42,15 @@ export class LabelingService {
 
   async getBestProfitableLogsPerAsset(): Promise<MarketLog[]> {
     this.logger.log(
-      'Retrieving best profitable logs per asset from the last 24 hours...',
+      `Retrieving best profitable logs per asset from the last ${this.analysisConfig.ANALYSIS_DAYS_BACK} days...`,
     );
 
-    const profitableLogs = await this.findProfitableLogsFromLast24Hours();
+    const profitableLogs = await this.findProfitableLogsFromLastDays();
     const bestLogsPerAsset = this.selectBestLogsPerAsset(profitableLogs);
     const sortedResult = this.sortLogsByProfitability(bestLogsPerAsset);
 
     this.logger.log(
-      `Retrieved ${sortedResult.length} best profitable logs per asset from last 24 hours.`,
+      `Retrieved ${sortedResult.length} best profitable logs per asset from last ${this.analysisConfig.ANALYSIS_DAYS_BACK} days.`,
     );
     return sortedResult;
   }
@@ -62,16 +64,16 @@ export class LabelingService {
     return await this.getBestProfitableLogsPerAsset();
   }
 
-  private async processLogsFromLast24Hours(): Promise<MarketLog[]> {
+  private async processLogsFromLastDays(): Promise<MarketLog[]> {
     const profitableLogs: MarketLog[] = [];
     let processedCount = 0;
     let hasMoreLogs = true;
-    const last24Hours = this.getLast24HoursDate();
+    const startDate = this.getStartDate();
 
     while (hasMoreLogs) {
-      const uncheckedLogs = await this.fetchUncheckedLogsBatchFromLast24Hours(
+      const uncheckedLogs = await this.fetchUncheckedLogsBatchFromLastDays(
         processedCount,
-        last24Hours,
+        startDate,
       );
 
       if (uncheckedLogs.length === 0) {
@@ -87,21 +89,21 @@ export class LabelingService {
     return profitableLogs;
   }
 
-  private async fetchUncheckedLogsBatchFromLast24Hours(
+  private async fetchUncheckedLogsBatchFromLastDays(
     skip: number,
-    last24Hours: Date,
+    startDate: Date,
   ): Promise<MarketLog[]> {
-    return await this.marketLogFetcherService.findUncheckedProfitabilityLogsBatchFromLast24Hours(
+    return await this.marketLogFetcherService.findUncheckedProfitabilityLogsBatchFromLastDays(
       this.analysisConfig.BATCH_SIZE,
       skip,
-      last24Hours,
+      startDate,
     );
   }
 
-  private async findProfitableLogsFromLast24Hours(): Promise<MarketLog[]> {
-    const last24Hours = this.getLast24HoursDate();
-    return await this.marketLogFetcherService.findProfitableLogsFromLast24Hours(
-      last24Hours,
+  private async findProfitableLogsFromLastDays(): Promise<MarketLog[]> {
+    const startDate = this.getStartDate();
+    return await this.marketLogFetcherService.findProfitableLogsFromLastDays(
+      startDate,
     );
   }
 
@@ -271,12 +273,12 @@ export class LabelingService {
 
   private logAnalysisResults(logs: MarketLog[]): void {
     this.logger.log(
-      'Analysis complete. Finding best profitable logs per asset for the last 24 hours...',
+      `Analysis complete. Finding best profitable logs per asset for the last ${this.analysisConfig.ANALYSIS_DAYS_BACK} days...`,
     );
     this.logger.log(
-      `Found ${logs.length} best profitable logs per asset from the last 24 hours.`,
+      `Found ${logs.length} best profitable logs per asset from the last ${this.analysisConfig.ANALYSIS_DAYS_BACK} days.`,
     );
-    this.logger.log('Best profitable logs by asset (last 24 hours):');
+    this.logger.log('Best profitable logs by asset:');
 
     logs.forEach((log, index) => {
       const timeInfo = (log as any).timeToReach
@@ -289,7 +291,9 @@ export class LabelingService {
     });
   }
 
-  private getLast24HoursDate(): Date {
-    return new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+  private getStartDate(): Date {
+    return new Date(
+      Date.now() - this.analysisConfig.ANALYSIS_DAYS_BACK * 24 * 60 * 60 * 1000,
+    );
   }
 }
