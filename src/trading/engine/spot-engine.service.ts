@@ -22,17 +22,12 @@ export class SpotEngineService implements OnModuleInit {
     private readonly rateLimiter: MarketLogRateLimiterService,
     private readonly configService: ConfigService,
   ) {
-    this.collectionInterval = this.configService.get<number>(
-      'MARKET_LOGS_COLLECTION_INTERVAL',
-      3,
-    );
+    this.collectionInterval = this.configService.get<number>('MARKET_LOGS_COLLECTION_INTERVAL', 3);
   }
 
   onModuleInit(): void {
     this.logger.log('✅ Spot trading system started');
-    this.logger.log(
-      `📊 Market log collection scheduled every ${this.collectionInterval} minutes`,
-    );
+    this.logger.log(`📊 Market log collection scheduled every ${this.collectionInterval} minutes`);
   }
 
   @Interval(60000)
@@ -41,13 +36,8 @@ export class SpotEngineService implements OnModuleInit {
       const topicName = SNS_TOPICS.MARKET_LOG_COLLECTION;
       const exchanges = await this.exchangeService.findActiveSystemExchanges();
 
-      this.logger.debug(
-        `🔄 Checking ${exchanges.length} exchanges for market log collection`,
-      );
-
       for (const exchangeDetails of exchanges) {
-        const shouldSkip =
-          await this.rateLimiter.shouldSkipCollection(exchangeDetails);
+        const shouldSkip = await this.rateLimiter.shouldSkipCollection(exchangeDetails);
 
         if (shouldSkip) {
           continue;
@@ -57,9 +47,7 @@ export class SpotEngineService implements OnModuleInit {
         await this.snsPublisher.publish(topicName, jobData);
         await this.rateLimiter.updateLastRunTime(exchangeDetails);
 
-        this.logger.log(
-          `📤 Published market log collection job for ${exchangeDetails.name}`,
-        );
+        this.logger.log(`📤 Published market log collection job for ${exchangeDetails.name}`);
       }
     } catch (error) {
       this.logger.error('❌ Error in market log collection scheduler:', error);

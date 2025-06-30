@@ -28,7 +28,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MarketLogRateLimiterService } from './market-logs/services/market-log-rate-limiter.service';
 import { MarketLogStatusService } from './market-logs/services/market-log-status.service';
 import { MarketLogStatusController } from './controllers/market-log-status.controller';
-import { ProfitableMarketLogsController } from './controllers/profitable-market-logs.controller';
 import { LearningModule } from 'src/learning/learning.module';
 
 @Module({
@@ -52,7 +51,7 @@ import { LearningModule } from 'src/learning/learning.module';
     }),
     forwardRef(() => LearningModule),
   ],
-  controllers: [MarketLogStatusController, ProfitableMarketLogsController],
+  controllers: [MarketLogStatusController],
   providers: [
     TradingSignalConsumerService,
     TradeSignalProcessor,

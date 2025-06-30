@@ -43,6 +43,11 @@ transformations:
 preferences:
   language: en
   code_style: typescript-strict
+  formatting:
+    line_length: 120
+    format_on_save: true
+    use_prettier: true
+    use_editorconfig: true
   libraries:
     - nestjs
     - next
@@ -69,6 +74,8 @@ hints:
     - Follow NestJS and Next.js best practices
     - Prefer concise and performant implementations
     - Always consider scalability, latency, throughput
+    - Use 120 character line length for better readability
+    - Format code consistently with Prettier
   project_domain:
     - crypto trading
     - secure financial APIs
