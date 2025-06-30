@@ -1,13 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MarketLogFetcherService } from '../market-logs/services/market-log-fetcher.service';
+import { Interval } from '@nestjs/schedule';
 import { ExchangeSettingsService } from 'src/accounts/services/exchange-settings.service';
-import { ExchangesFactory } from 'src/integrations/services/external-exchanges/exchanges.factory';
-import { SnsPublisherService } from 'src/infrastructure/sns-publisher.service';
 import { SNS_TOPICS } from 'src/common/constants';
 import { MarketLogCollectionJobDataDto } from 'src/common/models/dtos/market-log-collection-job-data.dto';
+import { SnsPublisherService } from 'src/infrastructure/sns-publisher.service';
+import { ExchangesFactory } from 'src/integrations/services/external-exchanges/exchanges.factory';
+import { MarketLogFetcherService } from '../market-logs/services/market-log-fetcher.service';
 import { MarketLogRateLimiterService } from '../market-logs/services/market-log-rate-limiter.service';
-import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class SpotEngineService implements OnModuleInit {

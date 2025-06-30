@@ -381,24 +381,15 @@ export class MarketLog extends Document {
   vectorData: number[];
 
   is15MinSentimentBullish(): boolean {
-    return (
-      this._15minSentiment === MarketCondition.BULLISH ||
-      this._15minSentiment === MarketCondition.SUPER_BULLISH
-    );
+    return this._15minSentiment === MarketCondition.BULLISH || this._15minSentiment === MarketCondition.SUPER_BULLISH;
   }
 
   is15MinSentimentBearish(): boolean {
-    return (
-      this._15minSentiment === MarketCondition.BEARISH ||
-      this._15minSentiment === MarketCondition.SUPER_BEARISH
-    );
+    return this._15minSentiment === MarketCondition.BEARISH || this._15minSentiment === MarketCondition.SUPER_BEARISH;
   }
 
   is15MinMacdBullish(): boolean {
-    return (
-      this._15minMacdValue > this._15minMacdSignal &&
-      this._15minMacdHistogram > 0
-    );
+    return this._15minMacdValue > this._15minMacdSignal && this._15minMacdHistogram > 0;
   }
 
   is15MinMacdBearish(): boolean {

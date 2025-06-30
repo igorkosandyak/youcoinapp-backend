@@ -3,10 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AccountStatus } from 'src/common/enums/account-status.enum';
 import { AccountDto } from 'src/common/models/dtos/account.dto';
-import {
-  Account,
-  AccountDocument,
-} from 'src/common/models/entities/account.entity';
+import { Account, AccountDocument } from 'src/common/models/entities/account.entity';
 
 @Injectable()
 export class AccountsRepository {
@@ -34,12 +31,7 @@ export class AccountsRepository {
     return await this.accountModel.findOne({ _id: accountId }).exec();
   }
 
-  async findByStatusAndWithProviders(
-    status: AccountStatus,
-  ): Promise<Account[]> {
-    return await this.accountModel
-      .find({ status: status })
-      .populate('exchanges')
-      .exec();
+  async findByStatusAndWithProviders(status: AccountStatus): Promise<Account[]> {
+    return await this.accountModel.find({ status: status }).populate('exchanges').exec();
   }
 }

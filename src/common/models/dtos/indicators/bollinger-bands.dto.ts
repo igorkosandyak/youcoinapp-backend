@@ -7,12 +7,7 @@ export class BollingerBands {
   middleLevel: number;
   marketCondition: MarketCondition;
 
-  constructor(
-    bollingerPbValue: number,
-    upper: number,
-    lower: number,
-    middle: number,
-  ) {
+  constructor(bollingerPbValue: number, upper: number, lower: number, middle: number) {
     this.value = bollingerPbValue;
     this.upperLevel = upper;
     this.lowerLevel = lower;

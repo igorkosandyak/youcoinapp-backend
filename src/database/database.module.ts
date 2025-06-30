@@ -12,7 +12,7 @@ import { DatabaseService } from './database.service';
         const uri = configService.get<string>('MONGO_DB_URI');
         return {
           uri,
-          connectionFactory: (connection) => connection,
+          connectionFactory: connection => connection,
         };
       },
     }),

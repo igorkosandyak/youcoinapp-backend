@@ -11,9 +11,7 @@ export class TradingviewController {
   constructor(private readonly snsPublisher: SnsPublisherService) {}
 
   @Post('webhooks/trade-signal')
-  async onTradeSignal(
-    @Body() signal: TradeSignalDto,
-  ): Promise<AppResponse<TradeSignalDto>> {
+  async onTradeSignal(@Body() signal: TradeSignalDto): Promise<AppResponse<TradeSignalDto>> {
     await this.snsPublisher.publish(SNS_TOPICS.TRADE_SIGNALS, signal);
     return new AppResponse(signal, 'Trade signal published to SNS');
   }

@@ -5,9 +5,7 @@ import { MarketLog } from 'src/common/models/entities/market-log.entity';
 
 @Injectable()
 export class MarketLogRepository {
-  constructor(
-    @InjectModel(MarketLog.name) private marketLogModel: Model<MarketLog>,
-  ) {}
+  constructor(@InjectModel(MarketLog.name) private marketLogModel: Model<MarketLog>) {}
 
   async saveMany(logs: Partial<MarketLog>[]): Promise<any[]> {
     if (!logs || logs.length === 0) {
@@ -17,10 +15,7 @@ export class MarketLogRepository {
     return savedLogs;
   }
 
-  async findUncheckedProfitabilityLogsBatch(
-    batchSize: number,
-    skip: number,
-  ): Promise<MarketLog[]> {
+  async findUncheckedProfitabilityLogsBatch(batchSize: number, skip: number): Promise<MarketLog[]> {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     return await this.marketLogModel
@@ -42,10 +37,7 @@ export class MarketLogRepository {
   ): Promise<MarketLog[]> {
     return await this.marketLogModel
       .find({
-        $or: [
-          { profitabilityCheckedAt: { $exists: false } },
-          { profitabilityCheckedAt: null },
-        ],
+        $or: [{ profitabilityCheckedAt: { $exists: false } }, { profitabilityCheckedAt: null }],
         createdAt: { $gte: last24Hours },
       })
       .sort({ createdAt: 1 })
@@ -54,14 +46,8 @@ export class MarketLogRepository {
       .exec();
   }
 
-  async findLogsByAssetAndTimeWindow(
-    from: string,
-    startTime: Date,
-    hoursWindow: number,
-  ): Promise<MarketLog[]> {
-    const endTime = new Date(
-      startTime.getTime() + hoursWindow * 60 * 60 * 1000,
-    );
+  async findLogsByAssetAndTimeWindow(from: string, startTime: Date, hoursWindow: number): Promise<MarketLog[]> {
+    const endTime = new Date(startTime.getTime() + hoursWindow * 60 * 60 * 1000);
 
     const result = await this.marketLogModel
       .find({
@@ -94,9 +80,7 @@ export class MarketLogRepository {
       updateData.timeToReach = timeToReach;
     }
 
-    await this.marketLogModel
-      .updateOne({ _id: logId }, { $set: updateData })
-      .exec();
+    await this.marketLogModel.updateOne({ _id: logId }, { $set: updateData }).exec();
   }
 
   async findProfitableLogs(): Promise<MarketLog[]> {
@@ -109,9 +93,7 @@ export class MarketLogRepository {
       .exec();
   }
 
-  async findProfitableLogsFromLast24Hours(
-    last24Hours: Date,
-  ): Promise<MarketLog[]> {
+  async findProfitableLogsFromLast24Hours(last24Hours: Date): Promise<MarketLog[]> {
     return await this.marketLogModel
       .find({
         wasProfitable: true,

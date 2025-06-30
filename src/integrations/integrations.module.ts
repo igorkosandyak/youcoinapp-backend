@@ -10,12 +10,7 @@ import { BybitFetcherService } from './services/external-exchanges/impl/bybit-fe
 @Module({
   imports: [InfrastructureModule, CommonModule],
   controllers: [TradingviewController],
-  providers: [
-    TradingviewService,
-    ExchangesFactory,
-    BinanceFetcherService,
-    BybitFetcherService,
-  ],
+  providers: [TradingviewService, ExchangesFactory, BinanceFetcherService, BybitFetcherService],
   exports: [ExchangesFactory, BinanceFetcherService, BybitFetcherService],
 })
 export class IntegrationsModule {}

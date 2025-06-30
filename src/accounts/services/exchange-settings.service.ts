@@ -16,54 +16,30 @@ export class ExchangeSettingsService {
     private readonly accountService: AccountsService,
   ) {}
 
-  async addExchangeDetails(
-    dto: AddExchangeDetailsDto,
-  ): Promise<ExchangeDetails> {
+  async addExchangeDetails(dto: AddExchangeDetailsDto): Promise<ExchangeDetails> {
     const account = await this.accountService.getByEmail(dto.accountEmail);
     const exchange = dto.exchange;
-    if (
-      await this._existsInAccount(account.id, exchange.name, exchange.market)
-    ) {
-      throw new AppException(
-        'This exchange already registered for your account!',
-        404,
-      );
+    if (await this._existsInAccount(account.id, exchange.name, exchange.market)) {
+      throw new AppException('This exchange already registered for your account!', 404);
     } else {
       return await this.repository.addExchangeDetails(dto, account.id);
     }
   }
 
-  async findAllActiveExchangesByMarket(
-    market: MarketType,
-  ): Promise<ExchangeDetails[]> {
-    return await this.repository.findByStatusAndMarket(
-      TradingStatus.ACTIVE,
-      market,
-    );
+  async findAllActiveExchangesByMarket(market: MarketType): Promise<ExchangeDetails[]> {
+    return await this.repository.findByStatusAndMarket(TradingStatus.ACTIVE, market);
   }
 
   async findActiveSystemExchanges(): Promise<ExchangeDetails[]> {
-    return await this.repository.findByStatusAndRelatesTo(
-      TradingStatus.ACTIVE,
-      RelatesTo.SYSTEM,
-    );
+    return await this.repository.findByStatusAndRelatesTo(TradingStatus.ACTIVE, RelatesTo.SYSTEM);
   }
 
   async findById(exchangeId: Types.ObjectId): Promise<ExchangeDetails> {
     return await this.repository.findById(exchangeId);
   }
 
-  private async _existsInAccount(
-    accountId: string,
-    name: ExchangeName,
-    market: MarketType,
-  ): Promise<boolean> {
-    const existingExchange =
-      await this.repository.existsByAccountIdAndNameAndMarket(
-        accountId,
-        name,
-        market,
-      );
+  private async _existsInAccount(accountId: string, name: ExchangeName, market: MarketType): Promise<boolean> {
+    const existingExchange = await this.repository.existsByAccountIdAndNameAndMarket(accountId, name, market);
     const exists = existingExchange !== null;
     return exists;
   }

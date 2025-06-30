@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  OnModuleDestroy,
-  Logger,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, OnModuleDestroy, Logger, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
 import { CacheConfigService } from './cache-config.service';
 
@@ -37,7 +32,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
     this.redis.on('ready', () => {});
 
-    this.redis.on('error', (error) => {
+    this.redis.on('error', error => {
       this.logger.error('❌ Redis connection error:', error);
     });
 
@@ -45,7 +40,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn('⚠️ Redis connection closed');
     });
 
-    this.redis.on('reconnecting', (delay) => {
+    this.redis.on('reconnecting', delay => {
       this.logger.log(`🔄 Redis reconnecting in ${delay}ms...`);
     });
 
@@ -53,7 +48,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn('⚠️ Redis connection ended');
     });
 
-    this.redis.on('warning', (warning) => {
+    this.redis.on('warning', warning => {
       this.logger.warn('⚠️ Redis warning:', warning);
     });
   }
@@ -95,11 +90,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async set<T>(
-    key: string,
-    value: T,
-    options: CacheOptions = {},
-  ): Promise<void> {
+  async set<T>(key: string, value: T, options: CacheOptions = {}): Promise<void> {
     try {
       const { ttl = this.configService.defaultTTL, prefix } = options;
       const fullKey = this.buildKey(key, prefix);
@@ -138,11 +129,9 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
   async deleteMultiple(keys: string[], prefix?: string): Promise<number> {
     try {
-      const fullKeys = keys.map((key) => this.buildKey(key, prefix));
+      const fullKeys = keys.map(key => this.buildKey(key, prefix));
       const result = await this.redis.del(...fullKeys);
-      this.logger.debug(
-        `Deleted ${result} out of ${fullKeys.length} cache keys`,
-      );
+      this.logger.debug(`Deleted ${result} out of ${fullKeys.length} cache keys`);
       return result;
     } catch (error) {
       this.logger.error('Error deleting multiple cache keys:', error);
@@ -185,11 +174,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async increment(
-    key: string,
-    amount: number = 1,
-    options: CacheOptions = {},
-  ): Promise<number> {
+  async increment(key: string, amount: number = 1, options: CacheOptions = {}): Promise<number> {
     try {
       const { ttl = this.configService.defaultTTL, prefix } = options;
       const fullKey = this.buildKey(key, prefix);
@@ -200,9 +185,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         await this.redis.expire(fullKey, ttl);
       }
 
-      this.logger.debug(
-        `Incremented key: ${fullKey} by ${amount}, new value: ${result}`,
-      );
+      this.logger.debug(`Incremented key: ${fullKey} by ${amount}, new value: ${result}`);
       return result;
     } catch (error) {
       this.logger.error(`Error incrementing cache key ${key}:`, error);
@@ -210,11 +193,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async decrement(
-    key: string,
-    amount: number = 1,
-    options: CacheOptions = {},
-  ): Promise<number> {
+  async decrement(key: string, amount: number = 1, options: CacheOptions = {}): Promise<number> {
     try {
       const { ttl = this.configService.defaultTTL, prefix } = options;
       const fullKey = this.buildKey(key, prefix);
@@ -225,9 +204,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         await this.redis.expire(fullKey, ttl);
       }
 
-      this.logger.debug(
-        `Decremented key: ${fullKey} by ${amount}, new value: ${result}`,
-      );
+      this.logger.debug(`Decremented key: ${fullKey} by ${amount}, new value: ${result}`);
       return result;
     } catch (error) {
       this.logger.error(`Error decrementing cache key ${key}:`, error);
@@ -235,11 +212,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async getOrSet<T>(
-    key: string,
-    factory: () => Promise<T>,
-    options: CacheOptions = {},
-  ): Promise<T> {
+  async getOrSet<T>(key: string, factory: () => Promise<T>, options: CacheOptions = {}): Promise<T> {
     const cached = await this.get<T>(key, options.prefix);
 
     if (cached !== null) {
@@ -268,16 +241,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
    */
   async getStats(): Promise<{ keys: number; memory: string }> {
     try {
-      const [keys, memory] = await Promise.all([
-        this.redis.dbsize(),
-        this.redis.memory('STATS'),
-      ]);
+      const [keys, memory] = await Promise.all([this.redis.dbsize(), this.redis.memory('STATS')]);
 
       return {
         keys,
-        memory: memory
-          ? `${Math.round(Number(memory) / 1024 / 1024)}MB`
-          : 'Unknown',
+        memory: memory ? `${Math.round(Number(memory) / 1024 / 1024)}MB` : 'Unknown',
       };
     } catch (error) {
       this.logger.error('Error getting cache stats:', error);
@@ -286,8 +254,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   }
 
   private buildKey(key: string, prefix?: string): string {
-    const keyPrefix =
-      prefix || this.configService.redisConfig.keyPrefix || 'youcoin:';
+    const keyPrefix = prefix || this.configService.redisConfig.keyPrefix || 'youcoin:';
     return `${keyPrefix}${key}`;
   }
 

@@ -15,11 +15,7 @@ export class BybitFetcherService implements ExchangeFetcherService {
   private timeUtils = null;
   constructor() {}
 
-  init(
-    exchange: ExchangeDetails,
-    calcs: CalcUtils,
-    timeUtils: TimeUtils,
-  ): ExchangeFetcherService {
+  init(exchange: ExchangeDetails, calcs: CalcUtils, timeUtils: TimeUtils): ExchangeFetcherService {
     this.BYBIT = new bybit({
       apiKey: exchange.apiKey,
       secret: exchange.secretKey,
@@ -30,11 +26,7 @@ export class BybitFetcherService implements ExchangeFetcherService {
     return this;
   }
 
-  async getSpotCandles(
-    from: string,
-    to: string,
-    interval: string,
-  ): Promise<Candlestick[]> {
+  async getSpotCandles(from: string, to: string, interval: string): Promise<Candlestick[]> {
     const symbol = from.includes('1000') ? `${from}${to}` : `${from}/${to}`;
     const candles = await this.BYBIT.fetchOHLCV(symbol, interval);
 
@@ -44,8 +36,7 @@ export class BybitFetcherService implements ExchangeFetcherService {
         ? parseInt(interval.slice(0, -1)) * 60
         : 1;
     const candleSticks: Candlestick[] = candles.map(
-      ([openTime, , high, low, close, volume]) =>
-        new Candlestick(openTime, intervalMinutes, high, low, close, volume),
+      ([openTime, , high, low, close, volume]) => new Candlestick(openTime, intervalMinutes, high, low, close, volume),
     );
     //latest is the last candle
     return candleSticks;

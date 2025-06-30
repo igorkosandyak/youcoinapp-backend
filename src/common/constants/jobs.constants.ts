@@ -1,8 +1,7 @@
 export const JOBS = {
   TRADE_SIGNAL_PROCESSOR: 'trade-signal-processor',
   MARKET_LOG_COLLECTION_PROCESSOR: 'market-log-collection-processor',
-  PROFITABLE_MARKET_LOGS_ANALYSIS_PROCESSOR:
-    'profitable-market-logs-analysis-processor',
+  PROFITABLE_MARKET_LOGS_ANALYSIS_PROCESSOR: 'profitable-market-logs-analysis-processor',
 } as const;
 
 export const JOB_OPTIONS = {

@@ -424,23 +424,11 @@ export class MarketLogDto {
 
   _isRanging(log: Partial<MarketLog>): boolean {
     const isLowAdx = log._15minBollingerAdx < 0.25;
-    const isNoTrend =
-      log._15minTrend === 'NO_TREND' && log._1hTrend === 'NO_TREND';
-    const isSidewaysSentiment =
-      ['SIDEWAYS'].includes(log._1hSentiment) &&
-      ['SIDEWAYS'].includes(log._4hSentiment);
-    const isFlatMacd =
-      Math.abs(log._15minMacdHistogram || 0) < 0.002 &&
-      Math.abs(log._1hMacdHistogram || 0) < 0.002;
-    const isLowStochastic =
-      (log._15minStochasticFast || 0) < 20 && (log._1hStochasticFast || 0) < 20;
+    const isNoTrend = log._15minTrend === 'NO_TREND' && log._1hTrend === 'NO_TREND';
+    const isSidewaysSentiment = ['SIDEWAYS'].includes(log._1hSentiment) && ['SIDEWAYS'].includes(log._4hSentiment);
+    const isFlatMacd = Math.abs(log._15minMacdHistogram || 0) < 0.002 && Math.abs(log._1hMacdHistogram || 0) < 0.002;
+    const isLowStochastic = (log._15minStochasticFast || 0) < 20 && (log._1hStochasticFast || 0) < 20;
 
-    return (
-      isLowAdx &&
-      isNoTrend &&
-      isSidewaysSentiment &&
-      isFlatMacd &&
-      isLowStochastic
-    );
+    return isLowAdx && isNoTrend && isSidewaysSentiment && isFlatMacd && isLowStochastic;
   }
 }

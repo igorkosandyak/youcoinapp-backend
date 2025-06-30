@@ -82,12 +82,9 @@ The system automatically runs daily analysis at 00:00 UTC via the scheduler:
 
 ```typescript
 // Triggered automatically by ProfitableMarketLogsAnalysisScheduler
-await this.snsPublisherService.publish(
-  MESSAGING.PROFITABLE_MARKET_LOGS_ANALYSIS,
-  {
-    analysisType: 'daily',
-  },
-);
+await this.snsPublisherService.publish(MESSAGING.PROFITABLE_MARKET_LOGS_ANALYSIS, {
+  analysisType: 'daily',
+});
 ```
 
 ### Manual On-Demand Analysis

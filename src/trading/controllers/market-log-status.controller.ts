@@ -1,18 +1,9 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { MarketLogStatusService } from '../market-logs/services/market-log-status.service';
 
 @Controller('market-logs')
 export class MarketLogStatusController {
-  constructor(
-    private readonly marketLogStatusService: MarketLogStatusService,
-  ) {}
+  constructor(private readonly marketLogStatusService: MarketLogStatusService) {}
 
   @Get('v1/stats')
   async getCollectionStats() {

@@ -22,16 +22,11 @@ export class ProfitableMarketLogCreatorService implements OnModuleInit {
     analysisType: string = 'daily',
   ): Promise<ProfitableMarketLog[]> {
     try {
-      profitableLogs = profitableLogs.filter(
-        (log) => log.maxPriceChangePercent > 2.5,
-      );
-      this.logger.log(
-        `Saving ${profitableLogs.length} profitable market logs to collection`,
-      );
+      profitableLogs = profitableLogs.filter(log => log.maxPriceChangePercent > 2.5);
+      this.logger.log(`Saving ${profitableLogs.length} profitable market logs to collection`);
 
-      const profitableMarketLogs = profitableLogs.map((log) => {
-        const logObject =
-          typeof log.toObject === 'function' ? log.toObject() : { ...log };
+      const profitableMarketLogs = profitableLogs.map(log => {
+        const logObject = typeof log.toObject === 'function' ? log.toObject() : { ...log };
 
         this.logger.debug(
           `Processing log for ${logObject.from}: currentPrice=${logObject.currentPrice}, change_1h=${logObject.change_1h}, _5minTrend=${logObject._5minTrend}`,
@@ -55,12 +50,9 @@ export class ProfitableMarketLogCreatorService implements OnModuleInit {
         return profitableLog;
       });
 
-      const savedLogs =
-        await this.profitableMarketLogRepository.saveMany(profitableMarketLogs);
+      const savedLogs = await this.profitableMarketLogRepository.saveMany(profitableMarketLogs);
 
-      this.logger.log(
-        `Successfully saved ${savedLogs.length} profitable market logs`,
-      );
+      this.logger.log(`Successfully saved ${savedLogs.length} profitable market logs`);
       return savedLogs;
     } catch (error) {
       this.logger.error('Error saving profitable market logs:', error);
@@ -73,10 +65,7 @@ export class ProfitableMarketLogCreatorService implements OnModuleInit {
     analysisType: string = 'daily',
   ): Promise<ProfitableMarketLog> {
     try {
-      const logObject =
-        typeof marketLog.toObject === 'function'
-          ? marketLog.toObject()
-          : { ...marketLog };
+      const logObject = typeof marketLog.toObject === 'function' ? marketLog.toObject() : { ...marketLog };
 
       const profitableLog = {
         ...logObject,
@@ -89,18 +78,12 @@ export class ProfitableMarketLogCreatorService implements OnModuleInit {
       delete profitableLog._id;
       delete profitableLog.__v;
 
-      const savedLog =
-        await this.profitableMarketLogRepository.save(profitableLog);
+      const savedLog = await this.profitableMarketLogRepository.save(profitableLog);
 
-      this.logger.log(
-        `Successfully saved profitable market log for ${marketLog.from}`,
-      );
+      this.logger.log(`Successfully saved profitable market log for ${marketLog.from}`);
       return savedLog;
     } catch (error) {
-      this.logger.error(
-        `Error saving profitable market log for ${marketLog.from}:`,
-        error,
-      );
+      this.logger.error(`Error saving profitable market log for ${marketLog.from}:`, error);
       throw error;
     }
   }
@@ -114,40 +97,21 @@ export class ProfitableMarketLogCreatorService implements OnModuleInit {
     return await this.profitableMarketLogRepository.getProfitableLogsStats();
   }
 
-  async findTopProfitableLogs(
-    limit: number = 10,
-  ): Promise<ProfitableMarketLog[]> {
-    return await this.profitableMarketLogRepository.findTopProfitableLogs(
-      limit,
-    );
+  async findTopProfitableLogs(limit: number = 10): Promise<ProfitableMarketLog[]> {
+    return await this.profitableMarketLogRepository.findTopProfitableLogs(limit);
   }
 
-  async findProfitableLogsByAsset(
-    asset: string,
-  ): Promise<ProfitableMarketLog[]> {
-    return await this.profitableMarketLogRepository.findProfitableLogsByAsset(
-      asset,
-    );
+  async findProfitableLogsByAsset(asset: string): Promise<ProfitableMarketLog[]> {
+    return await this.profitableMarketLogRepository.findProfitableLogsByAsset(asset);
   }
 
-  async findProfitableLogsByDateRange(
-    startDate: Date,
-    endDate: Date,
-  ): Promise<ProfitableMarketLog[]> {
-    return await this.profitableMarketLogRepository.findProfitableLogsByDateRange(
-      startDate,
-      endDate,
-    );
+  async findProfitableLogsByDateRange(startDate: Date, endDate: Date): Promise<ProfitableMarketLog[]> {
+    return await this.profitableMarketLogRepository.findProfitableLogsByDateRange(startDate, endDate);
   }
 
   async cleanupOldProfitableLogs(olderThanDays: number = 30): Promise<number> {
-    const deletedCount =
-      await this.profitableMarketLogRepository.deleteOldProfitableLogs(
-        olderThanDays,
-      );
-    this.logger.log(
-      `Cleaned up ${deletedCount} old profitable market logs (older than ${olderThanDays} days)`,
-    );
+    const deletedCount = await this.profitableMarketLogRepository.deleteOldProfitableLogs(olderThanDays);
+    this.logger.log(`Cleaned up ${deletedCount} old profitable market logs (older than ${olderThanDays} days)`);
     return deletedCount;
   }
 }

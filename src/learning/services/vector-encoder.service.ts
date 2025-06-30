@@ -8,8 +8,7 @@ export class VectorEncoderService {
   constructor() {}
 
   encode(log: Partial<MarketLog>): number[] {
-    const safe = (value?: number): number =>
-      typeof value === 'number' ? value : 0;
+    const safe = (value?: number): number => (typeof value === 'number' ? value : 0);
 
     const encodeTrend = (trend?: string): number[] => [
       trend === 'DOWNTREND' ? 1 : 0,
@@ -48,16 +47,11 @@ export class VectorEncoderService {
     };
 
     const momentumContext = (prefix: string): number[] => {
-      const delta9Ema =
-        currentPrice - safe(log[`${prefix}_9Ema` as keyof MarketLog]);
-      const delta40Ema =
-        currentPrice - safe(log[`${prefix}_40Ema` as keyof MarketLog]);
-      const delta14Sma =
-        currentPrice - safe(log[`${prefix}_14Sma` as keyof MarketLog]);
-      const delta30Sma =
-        currentPrice - safe(log[`${prefix}_30Sma` as keyof MarketLog]);
-      const delta50Sma =
-        currentPrice - safe(log[`${prefix}_50Sma` as keyof MarketLog]);
+      const delta9Ema = currentPrice - safe(log[`${prefix}_9Ema` as keyof MarketLog]);
+      const delta40Ema = currentPrice - safe(log[`${prefix}_40Ema` as keyof MarketLog]);
+      const delta14Sma = currentPrice - safe(log[`${prefix}_14Sma` as keyof MarketLog]);
+      const delta30Sma = currentPrice - safe(log[`${prefix}_30Sma` as keyof MarketLog]);
+      const delta50Sma = currentPrice - safe(log[`${prefix}_50Sma` as keyof MarketLog]);
       return [delta9Ema, delta40Ema, delta14Sma, delta30Sma, delta50Sma];
     };
 

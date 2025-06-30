@@ -7,47 +7,19 @@ export const validationSchema = Joi.object({
     .description('Application environment')
     .example('dev'),
 
-  MONGO_DB_URI: Joi.string()
-    .uri()
-    .description('MongoDB connection URI')
-    .example('mongodb://localhost:27017/test-db'),
+  MONGO_DB_URI: Joi.string().uri().description('MongoDB connection URI').example('mongodb://localhost:27017/test-db'),
 
-  PORT: Joi.number()
-    .integer()
-    .min(1)
-    .max(65535)
-    .default(3000)
-    .description('Application port')
-    .example(3000),
+  PORT: Joi.number().integer().min(1).max(65535).default(3000).description('Application port').example(3000),
 
-  TELEGRAM_ENABLED: Joi.boolean()
-    .default(false)
-    .description('Enable Telegram integration')
-    .example(false),
+  TELEGRAM_ENABLED: Joi.boolean().default(false).description('Enable Telegram integration').example(false),
 
-  REDIS_HOST: Joi.string()
-    .default('localhost')
-    .description('Redis server hostname')
-    .example('localhost'),
+  REDIS_HOST: Joi.string().default('localhost').description('Redis server hostname').example('localhost'),
 
-  REDIS_PORT: Joi.number()
-    .integer()
-    .min(1)
-    .max(65535)
-    .default(6379)
-    .description('Redis server port')
-    .example(6379),
+  REDIS_PORT: Joi.number().integer().min(1).max(65535).default(6379).description('Redis server port').example(6379),
 
-  REDIS_PASSWORD: Joi.string()
-    .optional()
-    .allow('')
-    .description('Redis server password')
-    .example('your-redis-password'),
+  REDIS_PASSWORD: Joi.string().optional().allow('').description('Redis server password').example('your-redis-password'),
 
-  REDIS_KEY_PREFIX: Joi.string()
-    .default('test:')
-    .description('Prefix for all cache keys')
-    .example('test:'),
+  REDIS_KEY_PREFIX: Joi.string().default('test:').description('Prefix for all cache keys').example('test:'),
 
   // Bull MQ Redis Configuration (separate from cache Redis)
   BULL_REDIS_HOST: Joi.string()
@@ -77,10 +49,7 @@ export const validationSchema = Joi.object({
     .description('Bull MQ Redis database number (for job queues)')
     .example(1),
 
-  AWS_ACCESS_KEY_ID: Joi.string()
-    .length(20)
-    .description('AWS Access Key ID')
-    .example('your-aws-access-key-id'),
+  AWS_ACCESS_KEY_ID: Joi.string().length(20).description('AWS Access Key ID').example('your-aws-access-key-id'),
 
   AWS_SECRET_ACCESS_KEY: Joi.string()
     .min(40)
@@ -135,44 +104,32 @@ export const validationSchema = Joi.object({
   AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC: Joi.string()
     .default('arn:aws:sns:us-east-1:ACCOUNT_ID:profitable-market-logs-analysis')
     .description('AWS SNS profitable market logs analysis topic')
-    .example(
-      'arn:aws:sns:us-east-1:ACCOUNT_ID:profitable-market-logs-analysis',
-    ),
+    .example('arn:aws:sns:us-east-1:ACCOUNT_ID:profitable-market-logs-analysis'),
 
   AWS_SQS_TRADE_SIGNALS_URL: Joi.string()
     .uri()
     .description('AWS SQS trade signals queue URL')
-    .example(
-      'https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/trade-signals-queue',
-    ),
+    .example('https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/trade-signals-queue'),
 
   AWS_SQS_DLQ_TRADE_SIGNALS_URL: Joi.string()
     .uri()
     .description('AWS SQS dead letter queue for trade signals')
-    .example(
-      'https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/trade-signals-dlq',
-    ),
+    .example('https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/trade-signals-dlq'),
 
   AWS_SQS_MARKET_LOG_COLLECTION_URL: Joi.string()
     .uri()
     .description('AWS SQS market log collection queue URL')
-    .example(
-      'https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/market-log-collection-queue',
-    ),
+    .example('https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/market-log-collection-queue'),
 
   AWS_SQS_MARKET_LOG_ANALYSIS_URL: Joi.string()
     .uri()
     .description('AWS SQS profitable market logs analysis queue URL')
-    .example(
-      'https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/profitable-market-logs-analysis-queue',
-    ),
+    .example('https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/profitable-market-logs-analysis-queue'),
 
   AWS_SQS_DLQ_MARKET_LOG_COLLECTION_URL: Joi.string()
     .uri()
     .description('AWS SQS dead letter queue for market log collection')
-    .example(
-      'https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/market-log-collection-dlq',
-    ),
+    .example('https://sqs.us-east-1.amazonaws.com/ACCOUNT_ID/market-log-collection-dlq'),
 
   MARKET_LOGS_COLLECTION_INTERVAL: Joi.number()
     .integer()

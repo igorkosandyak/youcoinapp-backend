@@ -8,10 +8,7 @@ import { ExchangesFactory } from 'src/integrations/services/external-exchanges/e
 import { MarketLogRateLimiterService } from '../market-logs/services/market-log-rate-limiter.service';
 
 @Processor(JOBS.MARKET_LOG_COLLECTION_PROCESSOR, { concurrency: 10 })
-export class MarketLogCollectionProcessor
-  extends WorkerHost
-  implements OnModuleInit
-{
+export class MarketLogCollectionProcessor extends WorkerHost implements OnModuleInit {
   private readonly logger = new Logger(MarketLogCollectionProcessor.name);
 
   constructor(
@@ -33,19 +30,14 @@ export class MarketLogCollectionProcessor
       // Re-initialize the exchange service since it gets serialized when sent through SNS/SQS
       const exchangeService = this.exchangesFactory.getFetcher(exchangeDetails);
 
-      await this.marketLogFetcherService.fetchForExchange(
-        exchangeDetails,
-        exchangeService,
-      );
+      await this.marketLogFetcherService.fetchForExchange(exchangeDetails, exchangeService);
 
       // Update the last run time after successful processing
       await this.rateLimiter.updateLastRunTime(exchangeDetails);
 
       await job.updateProgress(90);
 
-      this.logger.log(
-        `✅ [${job.id}] Market log collection completed for exchange: ${exchangeDetails.name}`,
-      );
+      this.logger.log(`✅ [${job.id}] Market log collection completed for exchange: ${exchangeDetails.name}`);
       await job.updateProgress(100);
     } catch (error) {
       this.logger.error(

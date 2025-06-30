@@ -28,23 +28,14 @@ export class MarketLogCollectionConsumerService {
 
       const jobId = `market-log-collection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      await this.marketLogCollectionQueue.add(
-        JOBS.MARKET_LOG_COLLECTION_PROCESSOR,
-        jobData,
-        {
-          ...JOB_OPTIONS,
-          jobId: jobId,
-        },
-      );
+      await this.marketLogCollectionQueue.add(JOBS.MARKET_LOG_COLLECTION_PROCESSOR, jobData, {
+        ...JOB_OPTIONS,
+        jobId: jobId,
+      });
 
-      this.logger.log(
-        `✅ Market log collection queued for processing: ${jobId}`,
-      );
+      this.logger.log(`✅ Market log collection queued for processing: ${jobId}`);
     } catch (error) {
-      this.logger.error(
-        `❌ Error processing market log collection: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`❌ Error processing market log collection: ${error.message}`, error.stack);
       throw error;
     }
   }

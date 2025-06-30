@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  OnModuleInit,
-  OnModuleDestroy,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -46,9 +41,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
       const dbName = this.connection.db.databaseName;
 
-      this.logger.log(
-        `✅ MongoDB connection test successful, 📊 Database: ${dbName}`,
-      );
+      this.logger.log(`✅ MongoDB connection test successful, 📊 Database: ${dbName}`);
     } catch (error) {
       this.logger.error('❌ MongoDB connection test failed:', error);
       throw error;

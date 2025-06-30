@@ -24,20 +24,10 @@ export class MarketLogCreatorService implements OnModuleInit {
     checkedAt: Date,
     timeToReach?: string,
   ) {
-    return this.marketLogRepository.updateLogProfitability(
-      logId,
-      isProfitable,
-      maxPriceChange,
-      checkedAt,
-      timeToReach,
-    );
+    return this.marketLogRepository.updateLogProfitability(logId, isProfitable, maxPriceChange, checkedAt, timeToReach);
   }
 
-  async clearProfitabilityData(
-    fromDate?: Date,
-    toDate?: Date,
-    asset?: string,
-  ): Promise<{ updatedCount: number }> {
+  async clearProfitabilityData(fromDate?: Date, toDate?: Date, asset?: string): Promise<{ updatedCount: number }> {
     try {
       this.logger.log('🧹 Starting profitability data cleanup...');
 
@@ -55,12 +45,9 @@ export class MarketLogCreatorService implements OnModuleInit {
         filter.from = asset;
       }
 
-      const result =
-        await this.marketLogRepository.clearProfitabilityData(filter);
+      const result = await this.marketLogRepository.clearProfitabilityData(filter);
 
-      this.logger.log(
-        `✅ Successfully cleared profitability data for ${result.updatedCount} market logs`,
-      );
+      this.logger.log(`✅ Successfully cleared profitability data for ${result.updatedCount} market logs`);
 
       if (fromDate || toDate) {
         const dateRange = `${fromDate?.toISOString() || 'beginning'} to ${toDate?.toISOString() || 'now'}`;
@@ -84,9 +71,7 @@ export class MarketLogCreatorService implements OnModuleInit {
 
       const result = await this.marketLogRepository.clearAllProfitabilityData();
 
-      this.logger.log(
-        `✅ Successfully cleared profitability data for ${result.updatedCount} market logs`,
-      );
+      this.logger.log(`✅ Successfully cleared profitability data for ${result.updatedCount} market logs`);
 
       return { updatedCount: result.updatedCount };
     } catch (error) {

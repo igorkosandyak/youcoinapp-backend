@@ -26,7 +26,7 @@ export class MarketLogStatusService {
       const exchanges = await this.exchangeService.findActiveSystemExchanges();
 
       const exchangeStats = await Promise.all(
-        exchanges.map(async (exchange) => {
+        exchanges.map(async exchange => {
           return await this.getExchangeStatusDto(exchange);
         }),
       );
@@ -38,9 +38,7 @@ export class MarketLogStatusService {
         timestamp: new Date().toISOString(),
       };
 
-      this.logger.debug(
-        `Retrieved stats for ${exchangeStats.length} exchanges`,
-      );
+      this.logger.debug(`Retrieved stats for ${exchangeStats.length} exchanges`);
       return result;
     } catch (error) {
       this.logger.error('Error getting collection stats:', error);
@@ -48,9 +46,7 @@ export class MarketLogStatusService {
     }
   }
 
-  async getExchangeStatus(
-    exchangeName: string,
-  ): Promise<ExchangeStatusResponseDto> {
+  async getExchangeStatus(exchangeName: string): Promise<ExchangeStatusResponseDto> {
     try {
       this.logger.debug(`Fetching status for exchange: ${exchangeName}`);
 
@@ -65,17 +61,12 @@ export class MarketLogStatusService {
       this.logger.debug(`Retrieved status for ${exchangeName}`);
       return result;
     } catch (error) {
-      this.logger.error(
-        `Error getting status for exchange ${exchangeName}:`,
-        error,
-      );
+      this.logger.error(`Error getting status for exchange ${exchangeName}:`, error);
       throw error;
     }
   }
 
-  async clearRateLimit(
-    exchangeName: string,
-  ): Promise<ClearRateLimitResponseDto> {
+  async clearRateLimit(exchangeName: string): Promise<ClearRateLimitResponseDto> {
     try {
       this.logger.log(`Clearing rate limit for exchange: ${exchangeName}`);
 
@@ -91,10 +82,7 @@ export class MarketLogStatusService {
       this.logger.log(`Successfully cleared rate limit for ${exchangeName}`);
       return result;
     } catch (error) {
-      this.logger.error(
-        `Error clearing rate limit for ${exchangeName}:`,
-        error,
-      );
+      this.logger.error(`Error clearing rate limit for ${exchangeName}:`, error);
       throw error;
     }
   }
@@ -106,7 +94,7 @@ export class MarketLogStatusService {
       const exchanges = await this.exchangeService.findActiveSystemExchanges();
 
       const statuses = await Promise.all(
-        exchanges.map(async (exchange) => {
+        exchanges.map(async exchange => {
           return await this.getExchangeStatusDto(exchange);
         }),
       );
@@ -119,13 +107,9 @@ export class MarketLogStatusService {
     }
   }
 
-  private async findExchangeByName(
-    exchangeName: string,
-  ): Promise<ExchangeDetails> {
+  private async findExchangeByName(exchangeName: string): Promise<ExchangeDetails> {
     const exchanges = await this.exchangeService.findActiveSystemExchanges();
-    const exchange = exchanges.find(
-      (e) => e.name.toLowerCase() === exchangeName.toLowerCase(),
-    );
+    const exchange = exchanges.find(e => e.name.toLowerCase() === exchangeName.toLowerCase());
 
     if (!exchange) {
       this.logger.warn(`Exchange not found: ${exchangeName}`);
@@ -135,11 +119,8 @@ export class MarketLogStatusService {
     return exchange;
   }
 
-  private async getExchangeStatusDto(
-    exchange: ExchangeDetails,
-  ): Promise<ExchangeStatusDto> {
-    const timeUntilNext =
-      await this.rateLimiter.getTimeUntilNextCollection(exchange);
+  private async getExchangeStatusDto(exchange: ExchangeDetails): Promise<ExchangeStatusDto> {
+    const timeUntilNext = await this.rateLimiter.getTimeUntilNextCollection(exchange);
 
     return {
       name: exchange.name,

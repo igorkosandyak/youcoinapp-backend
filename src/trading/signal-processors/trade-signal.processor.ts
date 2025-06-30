@@ -9,9 +9,7 @@ import { MarketLogFetcherService } from '../market-logs/services/market-log-fetc
 export class TradeSignalProcessor extends WorkerHost implements OnModuleInit {
   private readonly logger = new Logger(TradeSignalProcessor.name);
 
-  constructor(
-    private readonly marketLogFetcherService: MarketLogFetcherService,
-  ) {
+  constructor(private readonly marketLogFetcherService: MarketLogFetcherService) {
     super();
   }
 
@@ -26,10 +24,7 @@ export class TradeSignalProcessor extends WorkerHost implements OnModuleInit {
       }
       await this.marketLogFetcherService.fetchForSymbol(signal.pair);
     } catch (error) {
-      this.logger.error(
-        `❌ PROCESSOR: Failed to process trade signal job ${job.id}: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`❌ PROCESSOR: Failed to process trade signal job ${job.id}: ${error.message}`, error.stack);
 
       await job.updateProgress(100);
       throw error;

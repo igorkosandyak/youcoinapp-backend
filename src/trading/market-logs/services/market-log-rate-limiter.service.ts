@@ -13,13 +13,8 @@ export class MarketLogRateLimiterService {
     private readonly cacheService: CacheService,
     private readonly configService: ConfigService,
   ) {
-    this.collectionInterval = this.configService.get<number>(
-      'MARKET_LOGS_COLLECTION_INTERVAL',
-      3,
-    );
-    this.logger.log(
-      `Market log collection rate limiter initialized with ${this.collectionInterval} minute interval`,
-    );
+    this.collectionInterval = this.configService.get<number>('MARKET_LOGS_COLLECTION_INTERVAL', 3);
+    this.logger.log(`Market log collection rate limiter initialized with ${this.collectionInterval} minute interval`);
   }
 
   /**
@@ -27,17 +22,13 @@ export class MarketLogRateLimiterService {
    * @param exchangeDetails - The exchange details
    * @returns true if collection should be skipped, false if it should proceed
    */
-  async shouldSkipCollection(
-    exchangeDetails: ExchangeDetails,
-  ): Promise<boolean> {
+  async shouldSkipCollection(exchangeDetails: ExchangeDetails): Promise<boolean> {
     try {
       const cacheKey = this.buildCacheKey(exchangeDetails.name);
       const lastRunTime = await this.cacheService.get<number>(cacheKey);
 
       if (!lastRunTime) {
-        this.logger.debug(
-          `No previous run found for ${exchangeDetails.name}, proceeding with collection`,
-        );
+        this.logger.debug(`No previous run found for ${exchangeDetails.name}, proceeding with collection`);
         return false;
       }
 
@@ -46,9 +37,7 @@ export class MarketLogRateLimiterService {
       const intervalMs = this.collectionInterval * 60 * 1000; // Convert minutes to milliseconds
 
       if (timeSinceLastRun < intervalMs) {
-        const remainingTime = Math.ceil(
-          (intervalMs - timeSinceLastRun) / 1000 / 60,
-        );
+        const remainingTime = Math.ceil((intervalMs - timeSinceLastRun) / 1000 / 60);
         this.logger.log(
           `⏰ Skipping market log collection for ${exchangeDetails.name}. Last run was ${Math.floor(
             timeSinceLastRun / 1000 / 60,
@@ -64,10 +53,7 @@ export class MarketLogRateLimiterService {
       );
       return false;
     } catch (error) {
-      this.logger.error(
-        `Error checking rate limit for ${exchangeDetails.name}:`,
-        error,
-      );
+      this.logger.error(`Error checking rate limit for ${exchangeDetails.name}:`, error);
       // On error, allow collection to proceed
       return false;
     }
@@ -85,14 +71,9 @@ export class MarketLogRateLimiterService {
       // Set the last run time with TTL of 24 hours (86400 seconds)
       await this.cacheService.set(cacheKey, now, { ttl: 86400 });
 
-      this.logger.debug(
-        `📝 Updated last run time for ${exchangeDetails.name} to ${new Date(now).toISOString()}`,
-      );
+      this.logger.debug(`📝 Updated last run time for ${exchangeDetails.name} to ${new Date(now).toISOString()}`);
     } catch (error) {
-      this.logger.error(
-        `Error updating last run time for ${exchangeDetails.name}:`,
-        error,
-      );
+      this.logger.error(`Error updating last run time for ${exchangeDetails.name}:`, error);
     }
   }
 
@@ -101,9 +82,7 @@ export class MarketLogRateLimiterService {
    * @param exchangeDetails - The exchange details
    * @returns Time in milliseconds until next collection, or 0 if no previous run
    */
-  async getTimeUntilNextCollection(
-    exchangeDetails: ExchangeDetails,
-  ): Promise<number> {
+  async getTimeUntilNextCollection(exchangeDetails: ExchangeDetails): Promise<number> {
     try {
       const cacheKey = this.buildCacheKey(exchangeDetails.name);
       const lastRunTime = await this.cacheService.get<number>(cacheKey);
@@ -118,10 +97,7 @@ export class MarketLogRateLimiterService {
 
       return Math.max(0, intervalMs - timeSinceLastRun);
     } catch (error) {
-      this.logger.error(
-        `Error getting time until next collection for ${exchangeDetails.name}:`,
-        error,
-      );
+      this.logger.error(`Error getting time until next collection for ${exchangeDetails.name}:`, error);
       return 0;
     }
   }
@@ -157,10 +133,7 @@ export class MarketLogRateLimiterService {
       await this.cacheService.delete(cacheKey);
       this.logger.log(`🧹 Cleared rate limit cache for ${exchangeName}`);
     } catch (error) {
-      this.logger.error(
-        `Error clearing rate limit for ${exchangeName}:`,
-        error,
-      );
+      this.logger.error(`Error clearing rate limit for ${exchangeName}:`, error);
     }
   }
 

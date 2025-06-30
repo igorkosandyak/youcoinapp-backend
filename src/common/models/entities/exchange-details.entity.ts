@@ -139,5 +139,4 @@ export class ExchangeDetails extends Document {
 
 export type ExchangeDetailsDocument = ExchangeDetails & Document;
 
-export const ExchangeDetailsSchema =
-  SchemaFactory.createForClass(ExchangeDetails);
+export const ExchangeDetailsSchema = SchemaFactory.createForClass(ExchangeDetails);

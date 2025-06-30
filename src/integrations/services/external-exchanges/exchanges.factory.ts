@@ -27,8 +27,6 @@ export class ExchangesFactory {
       service = service.init(exchange, this.calcs, this.timeUtils);
       return service;
     }
-    throw new AppException(
-      `Exchange service for ${exchange.name} is not supported yet.`,
-    );
+    throw new AppException(`Exchange service for ${exchange.name} is not supported yet.`);
   }
 }

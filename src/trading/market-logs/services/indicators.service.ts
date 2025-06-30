@@ -2,14 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MarketCondition } from 'src/common/enums/market-condition.enum';
 import { MarketPressure } from 'src/common/enums/market-pressure.enum';
 import { TrendDirection } from 'src/common/enums/trend-direction.enum';
-import {
-  BollingerBands,
-  Candlestick,
-  Ema,
-  Macd,
-  Sma,
-  Stochastic,
-} from 'src/common/models';
+import { BollingerBands, Candlestick, Ema, Macd, Sma, Stochastic } from 'src/common/models';
 import * as technicalindicators from 'technicalindicators';
 import { ATRInput } from 'technicalindicators/declarations/directionalmovement/ATR';
 
@@ -18,7 +11,7 @@ export class IndicatorsService {
   constructor() {}
 
   getRSI(candlesticks: Candlestick[]): number {
-    const closePrices = candlesticks.slice(-30).map((candle) => candle.close);
+    const closePrices = candlesticks.slice(-30).map(candle => candle.close);
     const inputRSI = { values: closePrices, period: 14 };
     const rsiValues = technicalindicators.RSI.calculate(inputRSI);
     const rsi = rsiValues[rsiValues.length - 1];
@@ -39,9 +32,9 @@ export class IndicatorsService {
   }
 
   getAtr(candlesticks: Candlestick[]): number {
-    const high = candlesticks.map((candle) => candle.high);
-    const low = candlesticks.map((candle) => candle.low);
-    const close = candlesticks.map((candle) => candle.close);
+    const high = candlesticks.map(candle => candle.high);
+    const low = candlesticks.map(candle => candle.low);
+    const close = candlesticks.map(candle => candle.close);
 
     const atrInput: ATRInput = {
       high: high,
@@ -114,29 +107,24 @@ export class IndicatorsService {
     const period = 14;
     const input = {
       period: period,
-      values: candlesticks
-        .slice(-30)
-        .map((candlestick: Candlestick) => candlestick.close),
+      values: candlesticks.slice(-30).map((candlestick: Candlestick) => candlestick.close),
       stdDev: 2,
     };
 
     const bands = technicalindicators.BollingerBands.calculate(input);
     const avgPB = bands.reduce((sum, band) => sum + band.pb, 0) / bands.length;
 
-    const avgMiddle =
-      bands.reduce((sum, band) => sum + band.middle, 0) / bands.length;
-    const avgUpper =
-      bands.reduce((sum, band) => sum + band.upper, 0) / bands.length;
-    const avgLower =
-      bands.reduce((sum, band) => sum + band.lower, 0) / bands.length;
+    const avgMiddle = bands.reduce((sum, band) => sum + band.middle, 0) / bands.length;
+    const avgUpper = bands.reduce((sum, band) => sum + band.upper, 0) / bands.length;
+    const avgLower = bands.reduce((sum, band) => sum + band.lower, 0) / bands.length;
 
     return new BollingerBands(avgPB, avgUpper, avgLower, avgMiddle);
   }
 
   getStochasticOscillator(candlesticks: Candlestick[]): Stochastic {
-    const highPrices = candlesticks.map((candle) => candle.high);
-    const lowPrices = candlesticks.map((candle) => candle.low);
-    const closePrices = candlesticks.map((candle) => candle.close);
+    const highPrices = candlesticks.map(candle => candle.high);
+    const lowPrices = candlesticks.map(candle => candle.low);
+    const closePrices = candlesticks.map(candle => candle.close);
 
     const stochasticInput = {
       high: highPrices,
@@ -146,14 +134,13 @@ export class IndicatorsService {
       signalPeriod: 3,
     };
 
-    const stochasticResult =
-      technicalindicators.Stochastic.calculate(stochasticInput);
+    const stochasticResult = technicalindicators.Stochastic.calculate(stochasticInput);
     const stochastic = stochasticResult[stochasticResult.length - 1];
     return new Stochastic(stochastic.k, stochastic.d);
   }
 
   getMACD(candlesticks: Candlestick[]): Macd {
-    const closePrices = candlesticks.map((candle) => candle.close);
+    const closePrices = candlesticks.map(candle => candle.close);
     const macdInput = {
       values: closePrices,
       fastPeriod: 12,
@@ -169,9 +156,9 @@ export class IndicatorsService {
 
   getCCI(candlesticks: Candlestick[]): number {
     const recentCandles = candlesticks.slice(-30); // ensure we have enough data
-    const high = recentCandles.map((c) => c.high);
-    const low = recentCandles.map((c) => c.low);
-    const close = recentCandles.map((c) => c.close);
+    const high = recentCandles.map(c => c.high);
+    const low = recentCandles.map(c => c.low);
+    const close = recentCandles.map(c => c.close);
 
     const inputCCI = {
       high,
@@ -190,14 +177,8 @@ export class IndicatorsService {
     const bids = orderbook.bids.slice(0, depth);
     const asks = orderbook.asks.slice(0, depth);
 
-    const bidVolume = bids.reduce(
-      (sum, [, volume]) => sum + parseFloat(volume),
-      0,
-    );
-    const askVolume = asks.reduce(
-      (sum, [, volume]) => sum + parseFloat(volume),
-      0,
-    );
+    const bidVolume = bids.reduce((sum, [, volume]) => sum + parseFloat(volume), 0);
+    const askVolume = asks.reduce((sum, [, volume]) => sum + parseFloat(volume), 0);
 
     const total = bidVolume + askVolume;
     if (total === 0) return 0;
@@ -207,7 +188,7 @@ export class IndicatorsService {
   }
 
   private _get9EMA(candlesticks: Candlestick[]): number {
-    const closePrices = candlesticks.slice(-9).map((candle) => candle.close);
+    const closePrices = candlesticks.slice(-9).map(candle => candle.close);
     const emaValues = technicalindicators.EMA.calculate({
       period: 9,
       values: closePrices,
@@ -217,7 +198,7 @@ export class IndicatorsService {
   }
 
   private _get40EMA(candlesticks: Candlestick[]): number {
-    const closePrices = candlesticks.slice(-40).map((candle) => candle.close);
+    const closePrices = candlesticks.slice(-40).map(candle => candle.close);
     const emaValues = technicalindicators.EMA.calculate({
       period: 40,
       values: closePrices,
@@ -227,30 +208,23 @@ export class IndicatorsService {
   }
 
   _calculateSMA(candlesticks: Candlestick[], period: number): number {
-    const closePrices = candlesticks.map((candle) => candle.close);
+    const closePrices = candlesticks.map(candle => candle.close);
     const inputSMA = { values: closePrices, period };
     const smaValues = technicalindicators.SMA.calculate(inputSMA);
     return smaValues[smaValues.length - 1];
   }
 
-  private _getAvgVolume(
-    candlesticks: Candlestick[],
-    period: number = 20,
-  ): number {
+  private _getAvgVolume(candlesticks: Candlestick[], period: number = 20): number {
     const volumes = candlesticks
       .slice(-period)
-      .map((candlestick: Candlestick) =>
-        parseFloat(candlestick.volume.toString()),
-      );
+      .map((candlestick: Candlestick) => parseFloat(candlestick.volume.toString()));
     const totalVolume = volumes.reduce((sum, volume) => sum + volume, 0);
 
     return totalVolume / volumes.length;
   }
 
   private _getCurrentVolume(candlesticks: Candlestick[]): number {
-    const currentVolume = parseFloat(
-      candlesticks.slice(-2)[0].volume.toString(),
-    );
+    const currentVolume = parseFloat(candlesticks.slice(-2)[0].volume.toString());
     return currentVolume;
   }
 }

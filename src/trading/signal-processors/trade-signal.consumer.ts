@@ -28,9 +28,7 @@ export class TradingSignalConsumerService implements OnModuleInit {
       let signalData;
       if (body.Message) {
         signalData = JSON.parse(body.Message);
-        this.logger.log(
-          `📨 SNS message extracted: ${JSON.stringify(signalData)}`,
-        );
+        this.logger.log(`📨 SNS message extracted: ${JSON.stringify(signalData)}`);
       } else {
         signalData = body;
         this.logger.log(`📨 Direct SQS message: ${JSON.stringify(signalData)}`);
@@ -52,10 +50,7 @@ export class TradingSignalConsumerService implements OnModuleInit {
 
       this.logger.log(`✅ Trade signal queued for processing: ${jobId}`);
     } catch (error) {
-      this.logger.error(
-        `❌ Error processing trade signal: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`❌ Error processing trade signal: ${error.message}`, error.stack);
       throw error;
     }
   }

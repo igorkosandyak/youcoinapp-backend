@@ -9,31 +9,20 @@ interface TriggerAnalysisDto {
 
 @Controller('learning/profitable-market-logs-analysis')
 export class ProfitableMarketLogsAnalysisController {
-  private readonly logger = new Logger(
-    ProfitableMarketLogsAnalysisController.name,
-  );
+  private readonly logger = new Logger(ProfitableMarketLogsAnalysisController.name);
 
-  constructor(
-    private readonly analysisScheduler: ProfitableMarketLogsAnalysisSchedulerService,
-  ) {}
+  constructor(private readonly analysisScheduler: ProfitableMarketLogsAnalysisSchedulerService) {}
 
   @Post('trigger')
-  async triggerAnalysis(
-    @Body() body: TriggerAnalysisDto,
-  ): Promise<AppResponse<{ message: string }>> {
+  async triggerAnalysis(@Body() body: TriggerAnalysisDto): Promise<AppResponse<{ message: string }>> {
     try {
       const { startDate, endDate } = body;
 
-      this.logger.log(
-        `🚀 Manual trigger of profitable market logs analysis requested`,
-      );
+      this.logger.log(`🚀 Manual trigger of profitable market logs analysis requested`);
 
       if (startDate && endDate) {
         this.logger.log(`📅 Date range: ${startDate} to ${endDate}`);
-        await this.analysisScheduler.triggerOnDemandAnalysis(
-          startDate,
-          endDate,
-        );
+        await this.analysisScheduler.triggerOnDemandAnalysis(startDate, endDate);
       } else {
         this.logger.log(`📅 Using default daily analysis`);
         await this.analysisScheduler.triggerOnDemandAnalysis();
@@ -52,16 +41,13 @@ export class ProfitableMarketLogsAnalysisController {
   @Post('trigger/daily')
   async triggerDailyAnalysis(): Promise<AppResponse<{ message: string }>> {
     try {
-      this.logger.log(
-        `🚀 Manual trigger of daily profitable market logs analysis requested`,
-      );
+      this.logger.log(`🚀 Manual trigger of daily profitable market logs analysis requested`);
 
       await this.analysisScheduler.triggerDailyAnalysis();
 
       return new AppResponse(
         {
-          message:
-            'Daily profitable market logs analysis triggered successfully',
+          message: 'Daily profitable market logs analysis triggered successfully',
         },
         'Daily analysis job queued for processing',
       );

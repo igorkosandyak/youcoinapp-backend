@@ -14,7 +14,7 @@ export class ExampleCacheService {
       `user:profile:${userId}`,
       async () => {
         // Simulate database call
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
         return {
           id: userId,
           name: `User ${userId}`,
@@ -32,7 +32,7 @@ export class ExampleCacheService {
   @Cache('product:{0}', 3600) // Cache for 1 hour
   async getProduct(productId: string) {
     // Simulate database call
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise(resolve => setTimeout(resolve, 200));
     return {
       id: productId,
       name: `Product ${productId}`,
@@ -48,7 +48,7 @@ export class ExampleCacheService {
   @CacheTTL(900) // 15 minutes
   async getFeaturedProducts() {
     // Simulate database call
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise(resolve => setTimeout(resolve, 150));
     return [
       { id: '1', name: 'Featured Product 1', price: 99.99 },
       { id: '2', name: 'Featured Product 2', price: 149.99 },
@@ -61,7 +61,7 @@ export class ExampleCacheService {
    */
   async updateUserProfile(userId: string, profileData: any) {
     // Update in database (simulated)
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Invalidate cache
     await this.cacheService.delete(`user:profile:${userId}`);
@@ -94,11 +94,7 @@ export class ExampleCacheService {
    * Example 7: Multiple key operations
    */
   async clearUserCache(userId: string) {
-    const keys = [
-      `user:profile:${userId}`,
-      `user:settings:${userId}`,
-      `user:preferences:${userId}`,
-    ];
+    const keys = [`user:profile:${userId}`, `user:settings:${userId}`, `user:preferences:${userId}`];
 
     const deletedCount = await this.cacheService.deleteMultiple(keys);
     return { deletedCount, userId };

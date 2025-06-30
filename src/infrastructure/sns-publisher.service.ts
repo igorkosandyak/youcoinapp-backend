@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { ConfigService } from '@nestjs/config';
-import {
-  SNS_TOPICS,
-  SnsTopicKey,
-} from '../common/constants/messaging.constants';
+import { SNS_TOPICS, SnsTopicKey } from '../common/constants/messaging.constants';
 
 @Injectable()
 export class SnsPublisherService {
@@ -22,15 +19,9 @@ export class SnsPublisherService {
     });
 
     this.topicMap = {
-      [SNS_TOPICS.TRADE_SIGNALS]: config.get<string>(
-        'AWS_SNS_TRADE_SIGNALS_TOPIC',
-      ),
-      [SNS_TOPICS.MARKET_LOG_COLLECTION]: config.get<string>(
-        'AWS_SNS_MARKET_LOG_COLLECTION_TOPIC',
-      ),
-      [SNS_TOPICS.PROFITABLE_MARKET_LOGS_ANALYSIS]: config.get<string>(
-        'AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC',
-      ),
+      [SNS_TOPICS.TRADE_SIGNALS]: config.get<string>('AWS_SNS_TRADE_SIGNALS_TOPIC'),
+      [SNS_TOPICS.MARKET_LOG_COLLECTION]: config.get<string>('AWS_SNS_MARKET_LOG_COLLECTION_TOPIC'),
+      [SNS_TOPICS.PROFITABLE_MARKET_LOGS_ANALYSIS]: config.get<string>('AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC'),
       // Add more topic mappings as needed
       // [SNS_TOPICS.MARKET_ALERT]: config.get<string>('AWS_SNS_MARKET_ALERTS_TOPIC'),
       // [SNS_TOPICS.USER_NOTIFICATION]: config.get<string>('AWS_SNS_USER_NOTIFICATIONS_TOPIC'),
@@ -44,8 +35,7 @@ export class SnsPublisherService {
       throw new Error(`Unknown SNS topic key: ${topicKey}`);
     }
 
-    const payload =
-      typeof message === 'string' ? message : JSON.stringify(message);
+    const payload = typeof message === 'string' ? message : JSON.stringify(message);
 
     const isFifo = topicArn.endsWith('.fifo');
 

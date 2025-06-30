@@ -392,5 +392,4 @@ export class ProfitableMarketLog extends Document {
   originalMarketLogId: string; // Reference to the original market log
 }
 
-export const ProfitableMarketLogSchema =
-  SchemaFactory.createForClass(ProfitableMarketLog);
+export const ProfitableMarketLogSchema = SchemaFactory.createForClass(ProfitableMarketLog);

@@ -5,11 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { JOBS, QUEUE_CONFIGS } from 'src/common/constants/jobs.constants';
 import { InfrastructureModule } from 'src/infrastructure/infrastructure.module';
 import { TradingModule } from 'src/trading/trading.module';
-import {
-  CommonModule,
-  MarketLog,
-  MarketLogSchema,
-} from 'src/common/common.module';
+import { CommonModule, MarketLog, MarketLogSchema } from 'src/common/common.module';
 import { EngineService } from './services/engine.service';
 import { LabelingService } from './services/labeling.service';
 import { VectorEncoderService } from './services/vector-encoder.service';
@@ -23,9 +19,7 @@ import { ProfitableMarketLogsAnalysisController } from './controllers/profitable
     ScheduleModule.forRoot(),
     InfrastructureModule,
     forwardRef(() => TradingModule),
-    MongooseModule.forFeature([
-      { name: MarketLog.name, schema: MarketLogSchema },
-    ]),
+    MongooseModule.forFeature([{ name: MarketLog.name, schema: MarketLogSchema }]),
     CommonModule,
     BullModule.registerQueue({
       name: JOBS.PROFITABLE_MARKET_LOGS_ANALYSIS_PROCESSOR,

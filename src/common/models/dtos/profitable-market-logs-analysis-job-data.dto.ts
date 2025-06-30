@@ -4,11 +4,7 @@ export class ProfitableMarketLogsAnalysisJobDataDto {
   endDate?: string;
   triggeredAt: string;
 
-  constructor(
-    analysisType: 'daily' | 'on-demand' = 'daily',
-    startDate?: string,
-    endDate?: string,
-  ) {
+  constructor(analysisType: 'daily' | 'on-demand' = 'daily', startDate?: string, endDate?: string) {
     this.analysisType = analysisType;
     this.startDate = startDate;
     this.endDate = endDate;

@@ -9,19 +9,12 @@ export class AccountController {
   constructor(private readonly accountService: AccountsService) {}
 
   @Post('v1')
-  async createAccount(
-    @Body() accountDto: AccountDto,
-  ): Promise<AppResponse<Account>> {
+  async createAccount(@Body() accountDto: AccountDto): Promise<AppResponse<Account>> {
     return new AppResponse(await this.accountService.create(accountDto));
   }
 
   @Get('v1')
-  async getAccount(
-    @Query('id') accountId: string,
-    @Query('email') email: string,
-  ): Promise<AppResponse<Account>> {
-    return new AppResponse(
-      await this.accountService.getAccount(accountId, email),
-    );
+  async getAccount(@Query('id') accountId: string, @Query('email') email: string): Promise<AppResponse<Account>> {
+    return new AppResponse(await this.accountService.getAccount(accountId, email));
   }
 }
