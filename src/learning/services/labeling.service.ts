@@ -290,6 +290,6 @@ export class LabelingService {
   }
 
   private getLast24HoursDate(): Date {
-    return new Date(Date.now() - 24 * 60 * 60 * 1000);
+    return new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
   }
 }
