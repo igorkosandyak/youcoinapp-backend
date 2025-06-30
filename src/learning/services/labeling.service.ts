@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { MarketLog } from 'src/common/models/entities/market-log.entity';
 import { CalcUtils } from 'src/common/utils/calc-utils.service';
 import { MarketLogCreatorService } from 'src/trading/market-logs/services/market-log-creator.service';
 import { MarketLogFetcherService } from 'src/trading/market-logs/services/market-log-fetcher.service';
-import { MarketLog } from 'src/common/models/entities/market-log.entity';
 
 interface AnalysisConfig {
   readonly MAX_HOURS_TO_CHECK: number;
@@ -26,7 +26,9 @@ export class LabelingService {
   ) {}
 
   async analyzeMarketLogsProfitability(): Promise<MarketLog[]> {
-    this.logger.log('Analyzing market logs profitability for the last 24 hours');
+    this.logger.log(
+      'Analyzing market logs profitability for the last 24 hours',
+    );
 
     const profitableLogs = await this.processLogsFromLast24Hours();
     const bestLogsPerAsset = this.selectBestLogsPerAsset(profitableLogs);
@@ -37,18 +39,24 @@ export class LabelingService {
   }
 
   async getBestProfitableLogsPerAsset(): Promise<MarketLog[]> {
-    this.logger.log('Retrieving best profitable logs per asset from the last 24 hours...');
+    this.logger.log(
+      'Retrieving best profitable logs per asset from the last 24 hours...',
+    );
 
     const profitableLogs = await this.findProfitableLogsFromLast24Hours();
     const bestLogsPerAsset = this.selectBestLogsPerAsset(profitableLogs);
     const sortedResult = this.sortLogsByProfitability(bestLogsPerAsset);
 
-    this.logger.log(`Retrieved ${sortedResult.length} best profitable logs per asset from last 24 hours.`);
+    this.logger.log(
+      `Retrieved ${sortedResult.length} best profitable logs per asset from last 24 hours.`,
+    );
     return sortedResult;
   }
 
   async analyzeAndGetBestProfitableLogs(): Promise<MarketLog[]> {
-    this.logger.log('Starting profitability analysis and collecting best logs...');
+    this.logger.log(
+      'Starting profitability analysis and collecting best logs...',
+    );
 
     await this.analyzeMarketLogsProfitability();
     return await this.getBestProfitableLogsPerAsset();
@@ -61,7 +69,10 @@ export class LabelingService {
     const last24Hours = this.getLast24HoursDate();
 
     while (hasMoreLogs) {
-      const uncheckedLogs = await this.fetchUncheckedLogsBatchFromLast24Hours(processedCount, last24Hours);
+      const uncheckedLogs = await this.fetchUncheckedLogsBatchFromLast24Hours(
+        processedCount,
+        last24Hours,
+      );
 
       if (uncheckedLogs.length === 0) {
         hasMoreLogs = false;
@@ -76,7 +87,10 @@ export class LabelingService {
     return profitableLogs;
   }
 
-  private async fetchUncheckedLogsBatchFromLast24Hours(skip: number, last24Hours: Date): Promise<MarketLog[]> {
+  private async fetchUncheckedLogsBatchFromLast24Hours(
+    skip: number,
+    last24Hours: Date,
+  ): Promise<MarketLog[]> {
     return await this.marketLogFetcherService.findUncheckedProfitabilityLogsBatchFromLast24Hours(
       this.analysisConfig.BATCH_SIZE,
       skip,
@@ -86,7 +100,9 @@ export class LabelingService {
 
   private async findProfitableLogsFromLast24Hours(): Promise<MarketLog[]> {
     const last24Hours = this.getLast24HoursDate();
-    return await this.marketLogFetcherService.findProfitableLogsFromLast24Hours(last24Hours);
+    return await this.marketLogFetcherService.findProfitableLogsFromLast24Hours(
+      last24Hours,
+    );
   }
 
   private async processLogsBatch(logs: MarketLog[]): Promise<MarketLog[]> {
@@ -109,20 +125,32 @@ export class LabelingService {
     this.logTimeWindowResults(log, logsInTimeWindow);
 
     if (logsInTimeWindow.length === 0) {
-      this.logger.debug(`No logs found in time window for asset=${log.from}, createdAt=${log.createdAt}`);
+      this.logger.debug(
+        `No logs found in time window for asset=${log.from}, createdAt=${log.createdAt}`,
+      );
       return null;
     }
 
-    const { maxPriceChange, timeToReach } = this.calculateMaxPriceChange(log, logsInTimeWindow);
+    const { maxPriceChange, timeToReach } = this.calculateMaxPriceChange(
+      log,
+      logsInTimeWindow,
+    );
     const isProfitable = this.isLogProfitable(maxPriceChange);
 
-    await this.updateLogProfitability(log, isProfitable, maxPriceChange, timeToReach);
-
-    this.logger.debug(
-      `Log checked: asset=${log.from}, maxPriceChange=${maxPriceChange.toFixed(2)}%, timeToReach=${this.formatTimeToReach(timeToReach)}`,
+    await this.updateLogProfitability(
+      log,
+      isProfitable,
+      maxPriceChange,
+      timeToReach,
     );
 
-    return isProfitable ? this.createProfitableLog(log, maxPriceChange, timeToReach) : null;
+    this.logger.debug(
+      `Log checked: asset=${log.from}, maxPriceChange=${maxPriceChange.toFixed(2)}% (${maxPriceChange > 0 ? 'BUY' : 'SELL'}), timeToReach=${this.formatTimeToReach(timeToReach)}`,
+    );
+
+    return isProfitable
+      ? this.createProfitableLog(log, maxPriceChange, timeToReach)
+      : null;
   }
 
   private async findLogsInTimeWindow(log: MarketLog): Promise<MarketLog[]> {
@@ -133,7 +161,10 @@ export class LabelingService {
     );
   }
 
-  private logTimeWindowResults(log: MarketLog, logsInTimeWindow: MarketLog[]): void {
+  private logTimeWindowResults(
+    log: MarketLog,
+    logsInTimeWindow: MarketLog[],
+  ): void {
     this.logger.log(
       `Found ${logsInTimeWindow.length} logs in time window for asset=${log.from}, createdAt=${log.createdAt}`,
     );
@@ -147,11 +178,17 @@ export class LabelingService {
     let timeToReach = 0;
 
     for (const futureLog of futureLogs) {
-      const priceChange = this.calcUtils.calcPercentDiffBetweenPrices(log.currentPrice, futureLog.currentPrice);
+      const priceChange = this.calcUtils.calcPercentDiffBetweenPrices(
+        log.currentPrice,
+        futureLog.currentPrice,
+      );
 
-      if (priceChange > maxPriceChange) {
+      if (Math.abs(priceChange) > Math.abs(maxPriceChange)) {
         maxPriceChange = priceChange;
-        timeToReach = this.calculateTimeDifference(log.createdAt, futureLog.createdAt);
+        timeToReach = this.calculateTimeDifference(
+          log.createdAt,
+          futureLog.createdAt,
+        );
       }
     }
 
@@ -174,7 +211,9 @@ export class LabelingService {
   }
 
   private isLogProfitable(maxPriceChange: number): boolean {
-    return maxPriceChange >= this.analysisConfig.PROFIT_THRESHOLD_PERCENT;
+    return (
+      Math.abs(maxPriceChange) >= this.analysisConfig.PROFIT_THRESHOLD_PERCENT
+    );
   }
 
   private async updateLogProfitability(
@@ -192,7 +231,11 @@ export class LabelingService {
     );
   }
 
-  private createProfitableLog(log: MarketLog, maxPriceChange: number, timeToReach: number): MarketLog {
+  private createProfitableLog(
+    log: MarketLog,
+    maxPriceChange: number,
+    timeToReach: number,
+  ): MarketLog {
     return {
       ...log.toObject(),
       wasProfitable: true,
@@ -207,7 +250,10 @@ export class LabelingService {
 
     for (const log of logs) {
       const existingLog = bestLogsPerAsset.get(log.from);
-      if (!existingLog || log.maxPriceChangePercent > existingLog.maxPriceChangePercent) {
+      if (
+        !existingLog ||
+        log.maxPriceChangePercent > existingLog.maxPriceChangePercent
+      ) {
         bestLogsPerAsset.set(log.from, log);
       }
     }
@@ -215,19 +261,30 @@ export class LabelingService {
     return bestLogsPerAsset;
   }
 
-  private sortLogsByProfitability(logsMap: Map<string, MarketLog>): MarketLog[] {
-    return Array.from(logsMap.values()).sort((a, b) => b.maxPriceChangePercent - a.maxPriceChangePercent);
+  private sortLogsByProfitability(
+    logsMap: Map<string, MarketLog>,
+  ): MarketLog[] {
+    return Array.from(logsMap.values()).sort(
+      (a, b) => b.maxPriceChangePercent - a.maxPriceChangePercent,
+    );
   }
 
   private logAnalysisResults(logs: MarketLog[]): void {
-    this.logger.log('Analysis complete. Finding best profitable logs per asset for the last 24 hours...');
-    this.logger.log(`Found ${logs.length} best profitable logs per asset from the last 24 hours.`);
+    this.logger.log(
+      'Analysis complete. Finding best profitable logs per asset for the last 24 hours...',
+    );
+    this.logger.log(
+      `Found ${logs.length} best profitable logs per asset from the last 24 hours.`,
+    );
     this.logger.log('Best profitable logs by asset (last 24 hours):');
 
     logs.forEach((log, index) => {
-      const timeInfo = (log as any).timeToReach ? ` (reached in ${(log as any).timeToReach})` : '';
+      const timeInfo = (log as any).timeToReach
+        ? ` (reached in ${(log as any).timeToReach})`
+        : '';
+      const direction = log.maxPriceChangePercent > 0 ? 'BUY' : 'SELL';
       this.logger.log(
-        `${index + 1}. ${log.from}: ${log.maxPriceChangePercent.toFixed(2)}%${timeInfo} at ${log.createdAt}`,
+        `${index + 1}. ${log.from}: ${direction} ${Math.abs(log.maxPriceChangePercent).toFixed(2)}%${timeInfo} at ${log.createdAt}`,
       );
     });
   }

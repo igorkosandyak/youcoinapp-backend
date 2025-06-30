@@ -1,7 +1,11 @@
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Injectable, Logger } from '@nestjs/common';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { ConfigService } from '@nestjs/config';
-import { SNS_TOPICS, SnsTopicKey } from '../common/constants/messaging.constants';
+import {
+  SNS_TOPICS,
+  SnsTopicKey,
+} from '../common/constants/messaging.constants';
+import { BaseMessageDto } from '../common/models/dtos/base-message.dto';
 
 @Injectable()
 export class SnsPublisherService {
@@ -19,9 +23,15 @@ export class SnsPublisherService {
     });
 
     this.topicMap = {
-      [SNS_TOPICS.TRADE_SIGNALS]: config.get<string>('AWS_SNS_TRADE_SIGNALS_TOPIC'),
-      [SNS_TOPICS.MARKET_LOG_COLLECTION]: config.get<string>('AWS_SNS_MARKET_LOG_COLLECTION_TOPIC'),
-      [SNS_TOPICS.PROFITABLE_MARKET_LOGS_ANALYSIS]: config.get<string>('AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC'),
+      [SNS_TOPICS.TRADE_SIGNALS]: config.get<string>(
+        'AWS_SNS_TRADE_SIGNALS_TOPIC',
+      ),
+      [SNS_TOPICS.MARKET_LOG_COLLECTION]: config.get<string>(
+        'AWS_SNS_MARKET_LOG_COLLECTION_TOPIC',
+      ),
+      [SNS_TOPICS.PROFITABLE_MARKET_LOGS_ANALYSIS]: config.get<string>(
+        'AWS_SNS_MARKET_LOG_ANALYSIS_TOPIC',
+      ),
       // Add more topic mappings as needed
       // [SNS_TOPICS.MARKET_ALERT]: config.get<string>('AWS_SNS_MARKET_ALERTS_TOPIC'),
       // [SNS_TOPICS.USER_NOTIFICATION]: config.get<string>('AWS_SNS_USER_NOTIFICATIONS_TOPIC'),
@@ -35,14 +45,37 @@ export class SnsPublisherService {
       throw new Error(`Unknown SNS topic key: ${topicKey}`);
     }
 
-    const payload = typeof message === 'string' ? message : JSON.stringify(message);
-
+    const payload =
+      typeof message === 'string' ? message : JSON.stringify(message);
     const isFifo = topicArn.endsWith('.fifo');
+
+    let messageAttributes = {};
+    if (message instanceof BaseMessageDto) {
+      messageAttributes = {
+        MessageType: {
+          DataType: 'String',
+          StringValue: message.messageType,
+        },
+        CreatedAt: {
+          DataType: 'String',
+          StringValue: message.createdAt,
+        },
+        ExpiresAt: {
+          DataType: 'String',
+          StringValue: message.expiresAt,
+        },
+        ExpiresInMinutes: {
+          DataType: 'Number',
+          StringValue: '2',
+        },
+      };
+    }
 
     try {
       const command = new PublishCommand({
         TopicArn: topicArn,
         Message: payload,
+        MessageAttributes: messageAttributes,
         ...(isFifo && {
           MessageGroupId: 'trade-signals', // You can customize this
           MessageDeduplicationId: `msg-${Date.now()}-${Math.random()}`, // Simple deduplication
@@ -50,7 +83,9 @@ export class SnsPublisherService {
       });
 
       await this.snsClient.send(command);
-      this.logger.log(`Published to [${topicKey}] topic.`);
+      this.logger.log(
+        `Published to [${topicKey}] topic with expiration at ${message instanceof BaseMessageDto ? message.expiresAt : 'N/A'}.`,
+      );
     } catch (error) {
       this.logger.error(`Failed to publish to ${topicKey}`, error);
       throw error;
