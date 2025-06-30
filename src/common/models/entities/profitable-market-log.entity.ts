@@ -1,13 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { TrendDirection } from 'src/common/enums/trend-direction.enum';
 import { MarketCondition } from 'src/common/enums/market-condition.enum';
 import { MarketPressure } from 'src/common/enums/market-pressure.enum';
+import { OrderSide } from 'src/common/enums/order-side.enum';
+import { TrendDirection } from 'src/common/enums/trend-direction.enum';
 import { Candlestick } from '../dtos/candlestick.dto';
 
 @Schema({ collection: 'profitable-market-logs' })
 export class ProfitableMarketLog extends Document {
-  // Inherit all properties from MarketLog
+  @Prop({ type: String, enum: Object.values(OrderSide), required: true })
+  opportunityFor: OrderSide;
+
   @Prop({ type: String, required: true })
   market: string;
 
@@ -392,4 +395,5 @@ export class ProfitableMarketLog extends Document {
   originalMarketLogId: string; // Reference to the original market log
 }
 
+// eslint-disable-next-line prettier/prettier
 export const ProfitableMarketLogSchema = SchemaFactory.createForClass(ProfitableMarketLog);

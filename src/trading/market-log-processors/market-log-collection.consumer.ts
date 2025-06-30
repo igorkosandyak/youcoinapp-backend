@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
 import { InjectQueue } from '@nestjs/bullmq';
+import { Injectable, Logger } from '@nestjs/common';
+import { SqsMessageHandler } from '@ssut/nestjs-sqs';
 import { Queue } from 'bullmq';
 import { JOBS, JOB_OPTIONS } from 'src/common/constants/jobs.constants';
-import { SqsMessageHandler } from '@ssut/nestjs-sqs';
 import { SQS_QUEUES } from 'src/common/constants/messaging.constants';
 
 @Injectable()
@@ -24,6 +25,22 @@ export class MarketLogCollectionConsumerService {
         jobData = JSON.parse(body.Message);
       } else {
         jobData = body;
+      }
+
+      // Check if message has expired (works with BaseMessageDto)
+      if (jobData.expiresAt) {
+        const expirationTime = new Date(jobData.expiresAt);
+        const now = new Date();
+        if (now > expirationTime) {
+          this.logger.warn(`⏰ Message expired at ${jobData.expiresAt}, skipping processing`);
+          return;
+        }
+
+        const remainingTime = expirationTime.getTime() - now.getTime();
+        const remainingMinutes = Math.floor(remainingTime / (1000 * 60));
+        const remainingSeconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+        this.logger.log(`⏰ Message expires in ${remainingMinutes}m ${remainingSeconds}s`);
       }
 
       const jobId = `market-log-collection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
